@@ -1,0 +1,47 @@
+
+.collection-item.two-blocks {
+  display: flex;
+  justify-content: space-between;
+  
+  &.item-selected {
+    color: #26a69a;
+    background-color: rgba(0,0,0,0.03);
+  }
+
+  .item-name {
+    max-width: 80%;
+  }
+
+  .item-units {
+    font-weight: 600;
+  }
+
+
+}
+
+.alpha-select-container {
+
+
+  .selector-main {
+    border-bottom: 1px solid #9e9e9e;
+    margin: 10px 0;
+    padding: 5px;
+    position: relative;
+
+    i {
+      position: absolute;
+      right: 5px;
+      top: 0;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    &:focus {
+      border-bottom: 1px solid #9e9e9e; 
+    }
+
+  }
+
+}

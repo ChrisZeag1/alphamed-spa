@@ -1,0 +1,21 @@
+#emplead-inventario {
+  margin: 15px;
+
+  .input-field {
+    margin-right: 30px;
+  }
+
+  td.cantidad {
+    text-align: center;
+  }
+
+  .row.spinner {
+    display: flex;
+    margin-top: 20px;
+
+    .preloader-wrapper {
+      margin: auto;
+    }
+
+  }
+}

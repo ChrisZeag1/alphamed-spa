@@ -1,0 +1,83 @@
+export const datePickerOptions = {
+  autoClose: false,
+  container: null,
+  defaultDate: null,
+  disableDayFn: null,
+  disableWeekends: false,
+  events: [],
+  firstDay: 0,
+  format: 'dd/mm/yyyy',
+  i18n: {
+    cancel: 'Cancelar',
+    clear: 'Borrar',
+    done: 'Ok',
+    months: [
+      'Enero',
+      'Febrero',
+      'Marzo',
+      'Abril',
+      'Mayo',
+      'Junio',
+      'Julio',
+      'Agosto',
+      'Septiembre',
+      'Octubre',
+      'Noviembre',
+      'Diciembre'
+    ],
+    monthsShort: [
+      'Ene',
+      'Feb',
+      'Mar',
+      'Abr',
+      'May',
+      'Jun',
+      'Jul',
+      'Ago',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dic'
+    ],
+    nextMonth: '›',
+    previousMonth: '‹',
+    weekdays: [
+      'Domingo',
+      'Lunes',
+      'Martes',
+      'Miercoles',
+      'Jueves',
+      'Viernes',
+      'Sabado'
+    ],
+    weekdaysAbbrev: [
+      'D',
+      'L',
+      'Ma',
+      'Mi',
+      'J',
+      'V',
+      'S'
+    ],
+    weekdaysShort: [
+      'Dom',
+      'Lun',
+      'Mar',
+      'Mie',
+      'Jue',
+      'Vie',
+      'Sab'
+    ]
+  },
+  isRTL: false,
+  onClose: null,
+  onDraw: null,
+  onOpen: null,
+  onSelect: null,
+  parse: null,
+  setDefaultDate: true,
+  showClearBtn: false,
+  showDaysInNextAndPreviousMonths: false,
+  showMonthAfterYear: false,
+  yearRange: 5
+};

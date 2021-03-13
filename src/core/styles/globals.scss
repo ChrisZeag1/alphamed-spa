@@ -1,0 +1,11 @@
+table.row-hover {
+
+  tbody {
+    tr {
+      &:hover {
+        background-color: #f9fbe7;
+      }
+    }
+  }
+
+}

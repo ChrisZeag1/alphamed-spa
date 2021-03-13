@@ -1,0 +1,17 @@
+#inventario {
+  margin: 10px;
+  width: 90%;
+
+  h1 {
+    a.btn-large, button {
+      margin: 5px 10px;
+    }
+  }
+
+  .right-content {
+    display: flex;
+    justify-content: flex-end;
+    margin: 10px;
+  }
+
+}

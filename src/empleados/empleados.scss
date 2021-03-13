@@ -1,0 +1,55 @@
+.add-new-employee {
+  margin-left: 20px;
+}
+
+.modal-content {
+  .error-msg {
+    color: white;
+    padding: 10px;
+    margin: 10px;
+    font-weight: 700;
+  }
+}
+
+#empleados {
+  margin: 10px;
+  width: 90%;
+
+  .error-msg {
+    color: white;
+    padding: 10px;
+    margin: 10px;
+    font-weight: 700;
+  }
+
+  .spinner-container {
+    margin: 50px;
+    display: flex;
+  }
+
+  .collection {
+      width: fit-content;
+      position: absolute;
+      z-index: 10;
+
+      a {
+        display: flex;
+        align-items: center;
+      }
+
+    li {
+      display: flex;
+      cursor: pointer;
+      align-items: center;
+
+      button {
+        padding: 0;
+      }
+    }
+
+    i {
+      margin-right: 5px;
+    }
+
+  }
+}
