@@ -7,8 +7,9 @@ import './alpha-select.scss';
 export const AlphaSelect = (props) => {
   const [openModal, setopenModal] = useState(false);
   const [searchValue, setSearchValue] = useState('');
-  const [selectedItem, setSelectedItem] = useState('');
-
+  const getselectedItem = () => (
+    (props.items || []).find(i => i.articuloId === props.value)
+  );
   const modalOptions = {
     onCloseStart: () => setopenModal(false)
   };
@@ -21,14 +22,12 @@ export const AlphaSelect = (props) => {
     if(item.articuloId === 'NA') {
       return;
     }
-    setSelectedItem(item);
     setopenModal(false);
     props.onChange && props.onChange(item);
   };
 
   const applySelectedClass = (item) =>
-    selectedItem && selectedItem.articuloId === item.articuloId ? 
-      'item-selected' : '';
+    props.value ?  'item-selected' : '';
 
   const Item = (props) => <li onClick={() => onSelected(props.item)}
     className={`collection-item two-blocks ${applySelectedClass(props.item)}`}>
@@ -50,8 +49,8 @@ export const AlphaSelect = (props) => {
   return <div className="alpha-select-container">
 
     <div className="selector-main" onClick={() => setopenModal(true)}>
-      {!selectedItem ? <p>{props.label}</p> :
-      <div>{selectedItem.articulo } ({selectedItem.cantidad}U)</div>}
+      {!props.value ? <p>{props.label}</p> :
+      <div>{getselectedItem().articulo } ({getselectedItem().cantidad}U)</div>}
       <i className="small material-icons">arrow_drop_down</i>
     </div>
 
@@ -66,8 +65,8 @@ export const AlphaSelect = (props) => {
       </div>
       <ul className="collection">
         {
-          !props.items ? <li className="collection-item">Loading...</li> :
-            availableItems(props.items).map(item => <Item item={item}
+          !props.availableItems ? <li className="collection-item">Loading...</li> :
+            availableItems(props.availableItems).map(item => <Item item={item}
               key={item.articuloId}>
             </Item>)
         }

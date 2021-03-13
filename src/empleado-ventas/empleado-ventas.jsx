@@ -94,7 +94,7 @@ export default class EmpleadoVentas extends React.Component {
       newAvailableInventario = [
         ...this.state.availableInventario.slice(0, artIndex),
         ...this.state.availableInventario.slice(artIndex + 1, this.state.availableInventario.length),
-      ];
+      ].filter(i => i.cantidad);
     }
 
     const newArt = { ...this.state.articulos[index], ...articulo };
@@ -229,7 +229,7 @@ export default class EmpleadoVentas extends React.Component {
         this.clearForm();
         setTimeout(() => {
           this.setState({ successMessage: '' });
-        }, 7000);
+        }, 4000);
       }
     } catch(e) {
       this.setState({ errorMessage: e.message, ventaLoading: false });
@@ -262,7 +262,9 @@ export default class EmpleadoVentas extends React.Component {
       </div>}
       <div className="col s11">
         <AlphaSelect
-          items={this.state.availableInventario}
+          availableItems={this.state.availableInventario}
+          items={this.state.inventario}
+          value={this.state.articulos[i].articuloId}
           onChange={(item) => this.setNewArticulo({ articuloId: item.articuloId }, i)}
           label={'Producto'}>
         </AlphaSelect>
