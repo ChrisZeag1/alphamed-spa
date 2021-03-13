@@ -18,7 +18,7 @@ export const AlphaSelect = (props) => {
   };
 
   const onSelected = (item) => {
-    if(item.articuloId == 'NA') {
+    if(item.articuloId === 'NA') {
       return;
     }
     setSelectedItem(item);
@@ -27,7 +27,7 @@ export const AlphaSelect = (props) => {
   };
 
   const applySelectedClass = (item) =>
-    selectedItem && selectedItem.articuloId == item.articuloId ? 
+    selectedItem && selectedItem.articuloId === item.articuloId ? 
       'item-selected' : '';
 
   const Item = (props) => <li onClick={() => onSelected(props.item)}
