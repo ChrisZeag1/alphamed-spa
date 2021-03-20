@@ -73,7 +73,7 @@ export default class EmpleadoInventario extends React.Component {
       <h1>Inventario</h1>
       <div className="row">
         <div className="input-field col s12 m6">
-          <i class="material-icons prefix">search</i>
+          <i className="material-icons prefix">search</i>
           <input id="buscar-inventorio"
             type="text"
             onChange={(e) => this.handleSearch(e)}

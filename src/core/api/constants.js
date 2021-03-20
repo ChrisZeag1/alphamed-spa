@@ -8,3 +8,4 @@ export const ENVS = {
 export const USERS_URL = `${MAIN_URI}${ENVS[ENV]}/users`;
 export const INVENTARIO_URL = `${MAIN_URI}${ENVS[ENV]}/inventario`;
 export const VENTAS_URL = `${MAIN_URI}${ENVS[ENV]}/ventas`;
+export const LOGIN_URL = `${MAIN_URI}${ENVS[ENV]}/login`;

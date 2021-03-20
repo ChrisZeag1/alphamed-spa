@@ -1,0 +1,37 @@
+#login {
+  height: 99vh;
+  margin: 20px;
+  display: flex;
+
+  .main-content {
+    margin: auto;
+    width: 40%;
+  }
+
+  .block-cetered {
+    display: flex;
+
+    * {
+      margin: auto;
+    }
+
+  }
+
+  .logo {
+    width: 200px;
+    height: auto;
+    margin: auto;
+  }
+
+  @media only screen and (max-width: 768px) {
+    height: 70vh;
+
+    .main-content {
+      margin: 0;
+      margin-top: 50px;
+      width: 100%;
+    }
+
+  }
+
+}
