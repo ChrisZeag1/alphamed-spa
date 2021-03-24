@@ -37,11 +37,21 @@ export default class Inventario extends React.Component {
     this.setState({ isEditMode: !this.state.isEditMode });
   }
 
+  getQueryParam(paramName) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(paramName);
+  }
+
   async getInventario() {
     this.setState({ inventario: null });
     try {
       const inventario = await Api.get(Api.INVENTARIO_URL);
-      const dynamicFields = Object.keys(inventario[0]).filter(key => !STATIC_FIELDS.includes(key));
+      let dynamicFields = Object.keys(inventario[0]).filter(key => !STATIC_FIELDS.includes(key));
+      const queryParam = this.getQueryParam('userName');
+      if(queryParam) {
+        dynamicFields = dynamicFields.filter(fieldName => fieldName === queryParam);
+        this.toggleEditMode();
+      }
       const newItemFromFields = dynamicFields.reduce((acc, fieldName) => {
         acc[fieldName] = '';
         return acc;

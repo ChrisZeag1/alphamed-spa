@@ -21,6 +21,7 @@ export  class App extends React.Component {
     }
     this.handleLoginSubmit = this.handleLoginSubmit.bind(this);
     this.handleLoginForm = this.handleLoginForm.bind(this); 
+    this.handleLogout = this.handleLogout.bind(this);
   }
 
   componentDidMount() {
@@ -61,12 +62,18 @@ export  class App extends React.Component {
     }
   }
 
+  handleLogout() {
+    this.setState({ user: null });
+    localStorage.setItem('am-user', null);
+  }
+
   render() {
     return (
       <Router>
         { this.state.user && <NavBar rol={this.state.user.rol}/>}
         <Routes {...this.state}
           onSubmit={this.handleLoginSubmit}
+          handleLogout={this.handleLogout}
           onFormChange={this.handleLoginForm}/>
       </Router>
     );

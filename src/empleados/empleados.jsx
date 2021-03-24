@@ -7,20 +7,16 @@ import { Modal, Select, Button } from 'react-materialize';
 
 export const Actions = (props) => (
   <ul className="collection z-depth-4">
-    <li className="collection-item" key="Editar">
-      <i className="small material-icons">mode_edit</i>
-      <span>Editar</span>
-      </li>
     <li className="collection-item"  key="invetario">
-    <Link to={"/invetario?userName=" + props.userName}>
-      <i className="small material-icons">library_books</i>
-      <span>Invetario</span>
-    </Link>
-      </li>
+      <Link to={"/invetario?userName=" + props.userName}>
+        <i className="small material-icons">library_books</i>
+        <span>Invetario</span>
+      </Link>
+    </li>
     <li className="collection-item" key="ventas">
       <i className="small material-icons">attach_money</i>
       <span>Ventas</span>
-      </li>
+    </li>
     <li className="collection-item" key="delete">
       <Button className="waves-effect waves-teal btn-flat"
               disabled={props.isLoading}
@@ -204,7 +200,7 @@ export default class Empleados extends React.Component {
               <input id="username" value={this.state.form.userName} onChange={(e) => this.handleChange(e, 'userName') } type="text"/>
               <label htmlFor="username">Nombre de Usuario (unico)</label>
             </div>
-            <Select id="employee-rol"  value={this.state.form.rol} onChange={(e) => this.handleChange(e, 'rol') } options={{classes: 'col s12 m6 input-field'}}>
+            <Select id="employee-rol"  value={this.state.form.rol} onChange={(e) => this.handleChange(e, 'rol') }>
               <option disabled value="">
               Selectiona el Rol
               </option>              

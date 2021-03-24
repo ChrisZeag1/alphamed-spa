@@ -14,7 +14,7 @@ export default class ManagerDashboard extends React.Component {
 
   render() {
     return <div>
-      <h1>DASHBORD</h1>;
+      <h1>DASHBORD</h1>
     </div> 
   }
 }
