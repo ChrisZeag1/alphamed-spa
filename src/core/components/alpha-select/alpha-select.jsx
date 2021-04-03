@@ -8,7 +8,10 @@ export const AlphaSelect = (props) => {
   const [openModal, setopenModal] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const getselectedItem = () => (
-    (props.items || []).find(i => i.articuloId === props.value)
+    props.items ? props.items.find(i => i.articuloId === props.value) : {
+      articulo: '',
+      cantidad: ''
+    }
   );
   const modalOptions = {
     onCloseStart: () => setopenModal(false)
@@ -48,13 +51,13 @@ export const AlphaSelect = (props) => {
 
   return <div className="alpha-select-container">
 
-    <div className="selector-main" onClick={() => setopenModal(true)}>
+    <div className="selector-main" onClick={() =>  !props.disabled && setopenModal(true)}>
       {!props.value ? <p>{props.label}</p> :
       <div>{getselectedItem().articulo } ({getselectedItem().cantidad}U)</div>}
       <i className="small material-icons">arrow_drop_down</i>
     </div>
 
-    <Modal open={openModal} options={modalOptions}>
+    {!props.disabled &&<Modal open={openModal} options={modalOptions} root={document.body}>
       <p>Selectiona un Articulo</p>
       <div className="input-field col s4">
         <input id="search-invetory"
@@ -71,7 +74,7 @@ export const AlphaSelect = (props) => {
             </Item>)
         }
       </ul>
-    </Modal>
+    </Modal>}
   </div>
 
 }

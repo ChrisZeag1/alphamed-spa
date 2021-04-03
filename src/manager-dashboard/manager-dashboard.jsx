@@ -1,16 +1,8 @@
-import * as Api from '../core/api';
 import React from 'react';
 
 export default class ManagerDashboard extends React.Component {
-  componentDidMount() {
-    this.getUsers();
-  }
   
-  getUsers() {
-    Api.get(Api.USERS_URL).then((res) => {
-      console.log('users >>', res);
-    })
-  }
+  componentDidMount() {}
 
   render() {
     return <div>

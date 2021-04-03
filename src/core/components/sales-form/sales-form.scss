@@ -1,0 +1,58 @@
+.sales-form {
+  .collapsible.popout>li {
+    margin: 5px 24px;
+  }
+
+  .collapsible-header {
+    border: 1px solid #9e9e9e;
+    border-radius: 3px;
+    color: #9e9e9e;
+    background-color: transparent;
+  }
+
+  .text-area {
+    .col {
+      float: none;
+    }
+  }
+  .venta-iva {
+    margin: 10px 0;
+  }
+
+  .productos-venta {
+    margin: 5px;
+    padding: 5px;
+    padding-top: 0;
+
+    p {
+      color: #9e9e9e;
+    }
+
+    .producto {
+      position: relative;
+      border: 1px solid #9e9e9e;
+      border-radius: 3px;
+      margin: 10px;
+
+      .producto-delete {
+        cursor: pointer;
+        color: #b71c1c;
+        position: absolute;
+        right: 5px;
+        margin: 5px;
+      }
+
+    }
+  }
+
+  .venta-footer {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .selector-search {
+    .input-field.col {
+      width: 100%;
+    }
+  }
+}

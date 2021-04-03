@@ -1,0 +1,61 @@
+#ventas {
+
+  .ventas {
+    &__header {
+      display: flex;
+      align-items: baseline;
+
+      h5 {
+        margin: 0 15px;
+      }
+
+    }
+    
+  }
+
+  .sale-edit-mode-actions {
+    button, a {
+      margin: 0 25px;
+    }
+  }
+
+  .employee-header-sumary {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+
+    .sumary-el {
+      padding: 0 3px;
+      display: inline-block;
+      word-break: break-word;
+      text-align: end;
+
+      &.s-w {
+        width: 80px;
+      }
+
+      &.m-w {
+        width: 130px;
+      }
+
+      &.ll-w {
+        width: 200px;
+      }
+
+      &.l-w {
+        width: 226px;
+      }
+
+      &.editing {
+        background-color: #26a69a;
+        color: white;
+        padding: 3px 8px;
+        text-align: center;
+        font-weight: 500;
+        border-radius: 3px;
+        margin: 0 5px;
+      }
+    }
+  }
+
+}

@@ -1,8 +1,9 @@
 #root nav {
-  height: 100vh;
+  min-height: 100vh;
   width: auto;
   margin-right: 30px;
   z-index: 99;
+  height: auto;
 
   .selected {
     background-color: rgba(0,0,0,0.1);

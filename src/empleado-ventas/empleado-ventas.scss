@@ -2,23 +2,6 @@
   margin: 10px;
   margin-top: 0;
 
-  .collapsible.popout>li {
-    margin: 5px 24px;
-  }
-
-  .collapsible-header {
-    border: 1px solid #9e9e9e;
-    border-radius: 3px;
-    color: #9e9e9e;
-    background-color: transparent;
-  }
-
-  .text-area {
-    .col {
-      float: none;
-    }
-  }
-
   .title {
     display: flex;
     justify-content: space-between;
@@ -27,47 +10,9 @@
     .venta-id {
       font-size: 20px;
       margin-right: 10px;
-      color: #9e9e9e;
+      color: #912a2a;
     }
 
   }
 
-  .venta-iva {
-    margin: 10px 0;
-  }
-
-  .productos-venta {
-    margin: 5px;
-    padding: 5px;
-    padding-top: 0;
-
-    p {
-      color: #9e9e9e;
-    }
-
-    .producto {
-      position: relative;
-      border: 1px solid #9e9e9e;
-      border-radius: 3px;
-
-      .producto-delete {
-        color: #b71c1c;
-        position: absolute;
-        right: 0;
-        margin: 3px;
-      }
-
-    }
-  }
-
-  .venta-footer {
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .selector-search {
-    .input-field.col {
-      width: 100%;
-    }
-  }
 }
