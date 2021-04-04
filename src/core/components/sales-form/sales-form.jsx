@@ -24,9 +24,6 @@ export class SalesForm extends React.Component {
     super(props);
     this.setNewArticulo = this.setNewArticulo.bind(this);
     this.formId = props.ventaId || 0;
-    this.state = {
-      addNewProducto: true
-    };  
   }
 
 
@@ -37,7 +34,6 @@ export class SalesForm extends React.Component {
   deleteProducto(index) {
     const producto = this.props.articulos[index];
     const produInventrio = this.props.inventario.find(a => a.articuloId === producto.articuloId);
-    let emptyArticulo = [];
 
     const newArticulos = [
       ...this.props.articulos.slice(0, index),
@@ -61,15 +57,15 @@ export class SalesForm extends React.Component {
     if (hasIVA) {
       total = this.props.subTotal * iVA_VALUE;
     }
-    this.props.updateState({ IVA: hasIVA,  total });
+    return this.props.updateState({ IVA: hasIVA,  total });
   }
 
-  setMetodoPago(metodoPago) {
+  async setMetodoPago(metodoPago) {
     const hasIva = metodoPago === METODOS_PAGO.TPV;
     if(hasIva && !this.props.IVA) {
-      this.toogleIva();
+      await this.toogleIva();
     } else if(!hasIva && this.props.IVA) {
-      this.toogleIva();
+      await this.toogleIva();
     }
     this.props.setFormField({ metodoPago });
   }
@@ -121,11 +117,9 @@ export class SalesForm extends React.Component {
       ...currentArticulos.slice(index + 1, currentArticulos.length),
     ];    
 
-    if (index === currentArticulos.length -1 && !newAvailableInventario.length) {
-      this.setState({addNewProducto: false });
-    }
-    
-    const newSubTotal = newArticulos.reduce((acc, current) => acc + current.total, 0);
+    const newSubTotal = newArticulos.reduce((acc, current) =>
+      acc + (current.total ? current.total : this.getItemTotal(current) ), 0
+    );
     let newTotal = newSubTotal;
 
     if (this.props.IVA) {
@@ -139,15 +133,18 @@ export class SalesForm extends React.Component {
       total: newTotal
     });
   }
-
   getItemTotal(articulo) {
-    if (articulo.total) {
-      return articulo.total.toFixed(2);
-    }
     const cantidad = _get(articulo, 'cantidad', 0);
     const precio =  _get(articulo, 'precio', 0);
     const descuento = _get(articulo, 'descuento', 0)
-    return  ((cantidad * precio) - (descuento)).toFixed(2);
+    return  ((cantidad * precio) - (descuento));
+  }
+
+  getItemFormTotal(articulo) {
+    if (articulo.total) {
+      return articulo.total.toFixed(2);
+    }
+    return  this.getItemTotal(articulo).toFixed(2);
   }
 
   getProducto(articulo, i) {
@@ -191,7 +188,7 @@ export class SalesForm extends React.Component {
         </label>
       </div>
       <div className="input-field col s4">
-        <input value={`$ ${this.getItemTotal(articulo)}`} type="text" disabled/>
+        <input value={`$ ${this.getItemFormTotal(articulo)}`} type="text" disabled/>
         <label className={articulo.total ? 'active' : ''} className="active">total</label>
       </div>
     </div>
@@ -199,7 +196,6 @@ export class SalesForm extends React.Component {
 
   render() {
     return <form className="sales-form" onSubmit={(e) => this.props.onSubmitForm(e) }>
-
       <div className="row">
         <div className="input-field col s12 m6">
           <input id={`doctors-name-${this.formId}`}
@@ -264,7 +260,7 @@ export class SalesForm extends React.Component {
 
       <div className="row venta-footer">
         <div className="selector-search col s6">
-          <Select disabled={this.props.form.isReadMode} value={this.props.form.metodosPago} onChange={(e) => this.setMetodoPago(e.target.value) }>
+          <Select disabled={this.props.form.isReadMode} value={this.props.form.metodoPago} onChange={(e) => this.setMetodoPago(e.target.value) }>
             <option disabled defaultValue selected value=""> Metodo </option>
             {metodosPago.map(metodo => (<option key={metodo} value={metodo}>{metodo}</option>))}
           </Select>

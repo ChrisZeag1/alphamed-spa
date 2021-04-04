@@ -21,8 +21,12 @@ export default class Ventas extends React.Component {
       totalSales: null,
       stateUsers: null,
       fromDate: '2020-11-29',
-      toDate: moment().add(1, 'day').format('YYYY-MM-DD')
-    }
+      toDate: moment().add(1, 'day').format('YYYY-MM-DD'),
+      updatingSaleForm: null,
+      errorMessage: '',
+      successMessage: '',
+      isLoadingDelete: false,
+    };
   }
 
   componentDidMount() {
@@ -31,32 +35,36 @@ export default class Ventas extends React.Component {
 
   async getSales() {
     const queryDate = `?fromDate=${this.state.fromDate}=&toDate=${this.state.toDate}`;
-    const totalSales = await Api.get(`${Api.VENTAS_URL}${queryDate}`);
-    const stateUsers = (totalSales || [])
-      .map(sales => ({
-        ...sales,
+    const sales = await Api.get(`${Api.VENTAS_URL}${queryDate}`);
+    const stateUsers = (sales || [])
+      .map(sale => ({
+        IVA: sale.IVA,
+        fechaVenta: sale.fechaVenta,
+        articulos: [...sale.articulos],
+        subTotal: sale.subTotal,
+        total: sale.total,
+        userName: sale.userName,
+        ventaId: sale.ventaId,
         form: {
           isReadMode: true,
-          nombreDoctor: sales.nombreDoctor,
-          metodoPago: sales.metodoPago,
-          facturaEmail: sales.facturaEmail,
-          nota: sales.nota,
-          metodosPago: sales.metodosPago,
-          fechaVenta: sales.fechaVenta,
-          rfc: sales.rfc,
-        },
-        articulos: [...sales.articulos]
+          nombreDoctor: sale.nombreDoctor,
+          metodoPago: sale.metodoPago,
+          facturaEmail: sale.facturaEmail,
+          nota: sale.nota,
+          fechaVenta: sale.fechaVenta,
+          rfc: sale.rfc
+        }
       }))
       .reduce((acc, sale) => {
         acc[sale.userName] = {
           sale: _get(acc[sale.userName], 'sale', []).concat(sale),
           subTotal: _get(acc[sale.userName], 'subTotal', 0) + sale.subTotal,
-          itemQuantity: _get(acc[sale.userName], 'itemQuantity', 0)+ sale.articulos.length,
+          salesQuantity: _get(acc[sale.userName], 'salesQuantity', 0)+ sale.articulos.length,
           userName: sale.userName
         };
         return acc;
       }, {});
-      this.setState({ totalSales , stateUsers: Object.values(stateUsers).sort(this.sortByUserName) });
+      this.setState({ totalSales: sales , stateUsers: Object.values(stateUsers).sort(this.sortByUserName) });
       
       const employeeNames = Object.keys(stateUsers);
       const inventoryPerEmployeePromise = employeeNames.map(employeeName => this.getInvetorio(employeeName));
@@ -84,6 +92,36 @@ export default class Ventas extends React.Component {
     return Api.get(Api.INVENTARIO_URL + `/${employeeName}`);
   }
 
+  async deleteSale(e, employeeName, saleId) {
+    e.preventDefault();
+    if (this.state.isLoadingDelete) {
+      return;
+    }
+    this.setState({ isLoadingDelete: true });
+    try {
+      const reqDeleted = await Api.deleteReq(Api.VENTAS_URL + `/${employeeName}/${saleId}`);
+      if (reqDeleted) {
+        const newUserState =  this.sliceSale(employeeName, saleId);
+        const userIndex = this.state.stateUsers.findIndex(stateUser => stateUser.userName === employeeName)
+        await this.setUserState(newUserState, userIndex);
+        this.setState({ errorMessage: '', successMessage: 'Venta Borrada', isLoadingDelete: false });
+      }
+    }catch(e) {
+      this.setState({ errorMessage: e.message, isLoadingDelete: false });
+    }
+  }
+
+  sliceSale(employeeName, saleId) {
+    let userState = this.state.stateUsers.find(stateUser => stateUser.userName === employeeName);
+    let saleIndex = userState.sale.findIndex(sale => sale.ventaId === saleId);
+    userState.sale = [
+      ...userState.sale.slice(0, saleIndex),
+      ...userState.sale.slice(saleIndex + 1, userState.sale.length),
+    ];
+    return userState;
+  }
+
+
   toggleEditMode(userIndex, saleIndex) {
     const newSalesByUser = this.state.stateUsers.map((saleByUser, i) => ({
       ...saleByUser,
@@ -95,78 +133,77 @@ export default class Ventas extends React.Component {
         }
       }))
     }));
+    const updatingSaleForm = this.state.stateUsers[userIndex];
     this.setState({
-      stateUsers: [...newSalesByUser]
+      stateUsers: [...newSalesByUser],
+      updatingSaleForm: {
+        inventario: updatingSaleForm.inventario,
+        availableInventario: updatingSaleForm.availableInventario,
+        ...updatingSaleForm.sale[saleIndex],
+        form: {
+          ...updatingSaleForm.sale[saleIndex].form,
+          isReadMode: false
+        }
+      }
     });
   }
 
-  setUserState(newUserState, userStateIndex) { 
+  setUserState(newUserState, userStateIndex) {
     this.setState({
       stateUsers: [
         ...this.state.stateUsers.slice(0, userStateIndex),
         ...this.state.stateUsers.slice(userStateIndex + 1 , this.state.stateUsers.length),
         newUserState
       ].sort(this.sortByUserName)
-    })
+    });
   }
 
-  updateUserState(userName, saleIndex, newSaleState) {
-    const { availableInventario } = newSaleState;
-    delete newSaleState.availableInventario;
-    const oldUserStateIndex = this.state.stateUsers.findIndex(stateUser => stateUser.userName === userName);
-    const oldUserState = this.state.stateUsers[oldUserStateIndex];
-    oldUserState.sale[saleIndex] = {
-      ...oldUserState.sale[saleIndex],
-      ...newSaleState
-      
-    };
-    const userSales = {
-      ...oldUserState,
-      availableInventario: availableInventario && availableInventario.length ?
-        availableInventario : oldUserState.availableInventario
-    };
-    console.log('update user state >', userSales);
-    this.setUserState(userSales, oldUserStateIndex);
+  updateUserState(newSaleState) {
+    this.setState({
+      updatingSaleForm: {
+        ...this.state.updatingSaleForm,
+        ...newSaleState
+      }
+    });
   }
 
   
-  updateFromState(userName, saleIndex, newFieldValue) {
-    const userSalesIndex = this.state.stateUsers.findIndex(sales => sales.userName === userName);
-    const userSales = this.state.stateUsers[userSalesIndex];
-    userSales.sale[saleIndex] = {
-      ...userSales.sale[saleIndex],
+  updateFromState(newFieldValue) {
+    const updatingSaleForm = {
+      ...this.state.updatingSaleForm,
       form: {
-        ...userSales.sale[saleIndex].form,
+        ...this.state.updatingSaleForm.form,
         ...newFieldValue
       }
-    }
-    this.setUserState(userSales, userSalesIndex);
+    };
+    this.setState({ updatingSaleForm });
   }
 
-  async onSubmitForm(userName, saleIndex, e) {
-    const userSales = this.state.stateUsers.find(sales => sales.userName === userName);
-    const userState = userSales.sale[saleIndex];
+  async onSubmitForm(e) {
     e.preventDefault();
-    const articulos = userState.articulos.filter(a => a.articuloId);
     const errors = [];
-    if (!articulos.length) {
+    if (!this.state.updatingSaleForm.articulos.length) {
       errors.push('No hay articulos para vender');
     }
-    if(!userState.form.metodoPago) {
+    if (this.state.updatingSaleForm.articulos.some(a => !a.cantidad)) {
+      errors.push('hay articulos sin cantidad');
+    }
+    if (!this.state.updatingSaleForm.form.metodoPago) {
       errors.push('falta agregar el metodo de pago');
     }
-    if(errors.length) {
+    if (errors.length) {
       this.setState({ errorMessage: errors.join(',  ')});
       window.scroll({ top: 0,  behavior: 'smooth' });
+      console.log('sale >>', this.state.updatingSaleForm);
       return;
     }
 
     const toBeSaved = {
-      ...userState.form,
-      articulos: userState.articulos.filter(a => a.articuloId),
-      subTotal: +(userState.subTotal.toFixed(2)),
-      total: +(userState.total.toFixed(2)),
-      IVA: userState.IVA
+      ...this.state.updatingSaleForm.form,
+      articulos: this.state.updatingSaleForm.articulos.filter(a => a.articuloId),
+      subTotal: +(this.state.updatingSaleForm.subTotal.toFixed(2)),
+      total: +(this.state.updatingSaleForm.total.toFixed(2)),
+      IVA: this.state.updatingSaleForm.IVA
     };
     console.log('to  be saved >>>>>', toBeSaved);
     
@@ -184,7 +221,7 @@ export default class Ventas extends React.Component {
     return <div className="employee-header-sumary">
       <div className="to-left">{empSales.userName}</div>
       <div className="to-right">
-        <div className="sumary-el s-w">{empSales.itemQuantity} U</div>
+        <div className="sumary-el s-w">{empSales.salesQuantity} U</div>
         <div className="sumary-el m-w">{empSales.sale.length} Ventas</div>
         <div className="sumary-el l-w">$ {empSales.subTotal} MXN</div>
       </div>
@@ -225,23 +262,30 @@ export default class Ventas extends React.Component {
                       key={empSales.userName + sale.ventaId + saleIndex}
                       header={this.getEmployeeSalesHeader(sale)}>
                         { empSales.inventario &&
-                        <SalesForm {...sale} 
-                          availableInventario={empSales.availableInventario}
-                          inventario={empSales.inventario}
-                          setFormField={(newFieldValue) => this.updateFromState(empSales.userName, saleIndex, newFieldValue)}
-                          onSubmitForm={(e) => this.onSubmitForm(empSales.userName, saleIndex, e)}
-                          updateState={(newState) =>  this.updateUserState(empSales.userName, saleIndex, newState)}>
-                          {
-                            sale.form.isReadMode ? <Button onClick={(e) => {e.preventDefault();this.toggleEditMode(userIndex, saleIndex)}}>Editar</Button> :
-                            <span className="sale-edit-mode-actions">
-                              <Button type="submit" disabled={this.state.ventaLoading}>
-                              {!this.state.ventaLoading ?
-                                <span>Guardar</span> : <span>Cargando ...</span>}
-                              </Button>
-                              <a>ELIMINAR</a>
-                            </span>
-                          }
-                        </SalesForm>}
+                          (sale.form.isReadMode  ?
+                            <SalesForm {...sale}
+                              availableInventario={empSales.availableInventario}
+                              inventario={empSales.inventario}>
+                                <Button onClick={(e) => {e.preventDefault();this.toggleEditMode(userIndex, saleIndex)}}>Editar</Button>
+                            </SalesForm> :
+                            <SalesForm {...this.state.updatingSaleForm}
+                              setFormField={(newFieldValue) => this.updateFromState(newFieldValue)}
+                              onSubmitForm={(e) => this.onSubmitForm(e)}
+                              updateState={(newState) => this.updateUserState(newState)}>
+                                <span className="sale-edit-mode-actions">
+                                  <Button type="submit" disabled={this.state.ventaLoading}>
+                                  {!this.state.ventaLoading ?
+                                    <span>Guardar</span> : <span>Cargando ...</span>}
+                                  </Button>
+                                  <a className={`delete ${this.state.isLoadingDelete ? 'disabled' : ''}`}
+                                    onClick={(e) => this.deleteSale(e, sale.userName, sale.ventaId)}>
+                                    <i className="material-icons small">delete_forever</i>
+                                    { !this.state.isLoadingDelete ? <span>ELIMINAR</span> :
+                                    <span>ELIMINANDO...</span> }
+                                  </a>
+                                </span>                                
+                            </SalesForm>)
+                       }
                     </CollapsibleItem>))}
                   </Collapsible>
                 </CollapsibleItem>

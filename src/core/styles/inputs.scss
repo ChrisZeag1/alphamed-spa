@@ -9,6 +9,11 @@
 
 }
 
+a.disabled {
+  color: #b3b2b2 !important;
+  cursor: default;
+}
+
 ul.dropdown-content.select-dropdown {
   top: 0 !important;
 }

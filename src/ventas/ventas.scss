@@ -10,7 +10,26 @@
       }
 
     }
-    
+  }
+
+  .sales-form {
+    position: relative;
+
+    .sale-edit-mode-actions {
+      .delete {
+        position: absolute;
+        top: 0;
+        right: 5px;
+        color: #b71c1c;
+        cursor: pointer;
+
+        i {
+          vertical-align: bottom;
+        }
+
+      }
+    }
+
   }
 
   .sale-edit-mode-actions {
