@@ -20,18 +20,15 @@ export class SalesForm extends React.Component {
     descuento: '',
     total: 0
   };
-
   constructor(props) {
     super(props);
     this.setNewArticulo = this.setNewArticulo.bind(this);
     this.formId = props.ventaId || 0;
+    this.state = {
+      addNewProducto: true
+    };  
   }
 
-  componentDidMount() {
-    if (this.props.updateState) {
-      this.props.updateState({ articulos: [...this.props.articulos, { ...this.articulo } ] })
-    }
-  }
 
   sortArticulo(a, b) {
     return a.articulo < b.articulo ? -1 : a.articulo === b.articulo ? 0 : 1;
@@ -42,13 +39,10 @@ export class SalesForm extends React.Component {
     const produInventrio = this.props.inventario.find(a => a.articuloId === producto.articuloId);
     let emptyArticulo = [];
 
-    if (!this.props.articulos.some(a => typeof a.articuloId === 'string' && !a.articuloId)) {
-      emptyArticulo = [{ ...this.articulo }];
-    }
     const newArticulos = [
       ...this.props.articulos.slice(0, index),
       ...this.props.articulos.slice(index + 1, this.props.articulos.length),
-    ].concat(emptyArticulo);
+    ];
 
     const newAvailableInventario = [
       ...this.props.availableInventario,
@@ -83,8 +77,15 @@ export class SalesForm extends React.Component {
   setNewArticulo(articulo, index) {
     let newArticulos;
     let newAvailableInventario = this.props.availableInventario;
+    const currentArticulos = [...this.props.articulos];
+
+    if (typeof index !== 'number') {
+      currentArticulos.push(articulo);
+      index = currentArticulos.length - 1;
+    }
+
     if (articulo.cantidad) {
-      const id = this.props.articulos[index].articuloId;
+      const id = currentArticulos[index].articuloId;
       const articuloEnInvetorio = this.props.inventario.find(a =>
         a.articuloId === id
       );
@@ -93,10 +94,10 @@ export class SalesForm extends React.Component {
         articulo.cantidad : articuloEnInvetorio.cantidad;
     }
 
-    const cantidad = _get(articulo, 'cantidad') || +this.props.articulos[index].cantidad;
-    const descuento = _get(articulo, 'descuento') || +this.props.articulos[index].descuento;
+    const cantidad = _get(articulo, 'cantidad') || +currentArticulos[index].cantidad || 0;
+    const descuento = _get(articulo, 'descuento') || +currentArticulos[index].descuento || 0;
     const articuloEnInvetorio = this.props.inventario.find(a => 
-      a.articuloId === this.props.articulos[index].articuloId
+      a.articuloId === currentArticulos[index].articuloId
     );
     const total = (cantidad * _get(articuloEnInvetorio, 'precio', 0)) - (descuento || 0);
     
@@ -109,23 +110,21 @@ export class SalesForm extends React.Component {
         ...this.props.availableInventario.slice(0, artIndex),
         ...this.props.availableInventario.slice(artIndex + 1, this.props.availableInventario.length),
       ]
-      .concat(articuloEnInvetorio ? [articuloEnInvetorio] : [])
       .sort(this.sortArticulo)
       .filter(i => i.cantidad);
     }
 
-    const newArt = { ...this.props.articulos[index], ...articulo };
+    const newArt = { ...currentArticulos[index], ...articulo };
     newArticulos = [
-      ...this.props.articulos.slice(0, index),
+      ...currentArticulos.slice(0, index),
       newArt,
-      ...this.props.articulos.slice(index + 1, this.props.articulos.length),
+      ...currentArticulos.slice(index + 1, currentArticulos.length),
     ];    
 
-    if (index === this.props.articulos.length -1 && newAvailableInventario.length) {
-      newArticulos = [...newArticulos, { ...this.articulo }];
+    if (index === currentArticulos.length -1 && !newAvailableInventario.length) {
+      this.setState({addNewProducto: false });
     }
     
-
     const newSubTotal = newArticulos.reduce((acc, current) => acc + current.total, 0);
     let newTotal = newSubTotal;
 
@@ -152,8 +151,9 @@ export class SalesForm extends React.Component {
   }
 
   getProducto(articulo, i) {
-    return <div className="row producto col s12 m5" id={`producto-${articulo.articuloId}`} key={`producto-${i}`}>
-      {this.props.articulos[i].articuloId && !this.props.form.isReadMode && <div role="button"
+    return <div className={'row producto col s12 m5 '}
+      id={`producto-${articulo.articuloId}`} key={`producto-${i}`}>
+      {articulo.articuloId && !this.props.form.isReadMode && <div role="button"
           onClick={()=> this.deleteProducto(i)}
           className="producto-delete"
           aria-label="eliminar producto">
@@ -165,7 +165,7 @@ export class SalesForm extends React.Component {
           availableItems={this.props.availableInventario}
           disabled={this.props.form.isReadMode}
           items={this.props.inventario}
-          value={this.props.articulos[i].articuloId}
+          value={articulo.articuloId}
           onChange={(item) => this.setNewArticulo({ articuloId: item.articuloId }, i)}
           label={'Producto'}>
         </AlphaSelect>
@@ -216,6 +216,9 @@ export class SalesForm extends React.Component {
       <div className="productos-venta row">
         <p>Productos:</p>
         {this.props.articulos.map((articulo, i) => this.getProducto(articulo, i))}
+        {!this.props.form.isReadMode ?
+          this.getProducto(this.articulo) : ''
+        }
       </div>
 
       <div className="row venta-factura">
@@ -269,9 +272,10 @@ export class SalesForm extends React.Component {
         <div className="totals col s6">
           <div className="col s12 venta-iva">
           <Checkbox label="Iva"
-            value={this.props.IVA + ''}
-            checked={this.props.IVA}
-            disabled={this.props.form.metodoPago === METODOS_PAGO.TPV || this.props.form.isReadMode}
+            id={this.props.ventaId ? this.props.ventaId : 'select-122'}
+            value={(!!this.props.IVA) + ''}
+            checked={!!this.props.IVA}
+            disabled={this.props.form.metodoPago === METODOS_PAGO.TPV }
             onChange={() => this.toogleIva()}/>
           </div>
           <div className="input-field col s12">

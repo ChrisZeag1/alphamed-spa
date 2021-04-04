@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { Modal } from 'react-materialize';
+import { get as _get } from 'lodash';
 import './alpha-select.scss';
 
 
@@ -43,7 +44,7 @@ export const AlphaSelect = (props) => {
       const reg = new RegExp(searchValue, 'g');
       const filtered = items.filter(item => reg.test(item.articulo));
       return filtered.length ?
-      filtered : [{ articulo: 'sin reslutadaos', articuloId: 'NA' }];
+      filtered : [{ articulo: 'sin reslutados', articuloId: 'NA' }];
     } else {
       return items;
     }
@@ -67,6 +68,10 @@ export const AlphaSelect = (props) => {
         <label htmlFor="search-invetory">Buscar</label>
       </div>
       <ul className="collection">
+        {
+          !_get(props.availableItems, 'length') && 
+          <li  className="collection-item two-blocks">No hay inventario</li>
+        }
         {
           !props.availableItems ? <li className="collection-item">Loading...</li> :
             availableItems(props.availableItems).map(item => <Item item={item}
