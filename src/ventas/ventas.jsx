@@ -7,7 +7,6 @@ import * as Api from '../core/api';
 import './ventas.scss';
 
 export default class Ventas extends React.Component {
-  user = JSON.parse(localStorage.getItem('am-user'));
   articulo = {
     articuloId: '',
     cantidad: '',
@@ -21,7 +20,8 @@ export default class Ventas extends React.Component {
       totalSales: null,
       stateUsers: null,
       fromDate: '2020-11-29',
-      toDate: moment().add(1, 'day').format('YYYY-MM-DD'),
+      userNames: [],
+      toDate: moment().add(5, 'day').format('YYYY-MM-DD'),
       updatingSaleForm: null,
       errorMessage: '',
       successMessage: '',
@@ -30,66 +30,83 @@ export default class Ventas extends React.Component {
   }
 
   componentDidMount() {
-    this.getSales();
+    this.user = JSON.parse(localStorage.getItem('am-user'));
+    this.refreshPage();
+  }
+
+  async refreshPage() {
+    await this.getSales();
+    this.getAllInvetorio();
   }
 
   async getSales() {
-    const queryDate = `?fromDate=${this.state.fromDate}=&toDate=${this.state.toDate}`;
-    const sales = await Api.get(`${Api.VENTAS_URL}${queryDate}`);
-    const stateUsers = (sales || [])
-      .map(sale => ({
-        IVA: sale.IVA,
-        fechaVenta: sale.fechaVenta,
-        articulos: [...sale.articulos],
-        subTotal: sale.subTotal,
-        total: sale.total,
-        userName: sale.userName,
-        ventaId: sale.ventaId,
-        form: {
-          isReadMode: true,
-          nombreDoctor: sale.nombreDoctor,
-          metodoPago: sale.metodoPago,
-          facturaEmail: sale.facturaEmail,
-          nota: sale.nota,
+    try {
+      const queryDate = `?fromDate=${this.state.fromDate}=&toDate=${this.state.toDate}`;
+      const sales = await Api.get(`${Api.VENTAS_URL}${queryDate}`);
+      const stateUsers = (sales || [])
+        .map(sale => ({
+          IVA: sale.IVA,
           fechaVenta: sale.fechaVenta,
-          rfc: sale.rfc
+          articulos: [...sale.articulos],
+          subTotal: sale.subTotal,
+          total: sale.total,
+          userName: sale.userName,
+          ventaId: sale.ventaId,
+          form: {
+            isReadMode: true,
+            nombreDoctor: sale.nombreDoctor,
+            metodoPago: sale.metodoPago,
+            facturaEmail: sale.facturaEmail,
+            nota: sale.nota,
+            fechaVenta: sale.fechaVenta,
+            rfc: sale.rfc
+          }
+        }))
+        .reduce((acc, sale) => {
+          acc[sale.userName] = {
+            sale: _get(acc[sale.userName], 'sale', []).concat(sale),
+            subTotal: _get(acc[sale.userName], 'subTotal', 0) + sale.subTotal,
+            salesQuantity: _get(acc[sale.userName], 'salesQuantity', 0)+ sale.articulos.length,
+            userName: sale.userName
+          };
+          return acc;
+        }, {});
+      await this.setState({ totalSales: sales,
+        stateUsers: Object.values(stateUsers).sort(this.sortByUserName),
+        userNames: Object.keys(stateUsers)
+      });
+    } catch(e) {
+      this.displayMessage({ errorMessage: e.message });
+    }
+  }
+  
+
+  async getAllInvetorio() {
+    try {
+      const inventario = await Api.get(Api.INVENTARIO_URL);
+      const invetarioByUser =  this.state.userNames.reduce((acc, userName) => {
+        const mappedInvent = inventario.map(invent => ({
+          cantidad: invent[userName],
+          articulo: invent.articulo,
+          articuloId: invent.articuloId,
+          precio: invent.precio
+        }));
+        acc[userName] = {
+          inventario: mappedInvent,
+          availableInventario: mappedInvent
+            .filter(i => i.cantidad)
+            .sort(this.sortArticulo)
         }
-      }))
-      .reduce((acc, sale) => {
-        acc[sale.userName] = {
-          sale: _get(acc[sale.userName], 'sale', []).concat(sale),
-          subTotal: _get(acc[sale.userName], 'subTotal', 0) + sale.subTotal,
-          salesQuantity: _get(acc[sale.userName], 'salesQuantity', 0)+ sale.articulos.length,
-          userName: sale.userName
-        };
         return acc;
       }, {});
-      this.setState({ totalSales: sales , stateUsers: Object.values(stateUsers).sort(this.sortByUserName) });
-      
-      const employeeNames = Object.keys(stateUsers);
-      const inventoryPerEmployeePromise = employeeNames.map(employeeName => this.getInvetorio(employeeName));
-      Promise.all(inventoryPerEmployeePromise).then((inventarios) => {
-        const perEmployee = inventarios.reduce((current, invent, i) => {
-          current[employeeNames[i]] = {
-            inventario: invent,
-            availableInventario: invent.filter(i => i.cantidad).sort(this.sortArticulo)
-          };
-          return current;
-        }, {});
-
-        const userStateWithInvetory = this.state.stateUsers.map(userState => ({
-          ...userState,
-          ...perEmployee[userState.userName]
-        }));
-        this.setState({ stateUsers: userStateWithInvetory });
-        console.log('per employee >>', userStateWithInvetory);
-      }).catch((e) => {
-        this.setState({ errorMessage: e.message });
-      })
-  }
-
-  async getInvetorio(employeeName) {
-    return Api.get(Api.INVENTARIO_URL + `/${employeeName}`);
+      const userStateWithInvetory = this.state.stateUsers.map(userState => ({
+        ...userState,
+        ...invetarioByUser[userState.userName]
+      }));
+      await this.setState({ stateUsers: userStateWithInvetory });
+    } catch(e) {
+      this.displayMessage({ errorMessage: e.message});
+    }
   }
 
   async deleteSale(e, employeeName, saleId) {
@@ -104,10 +121,10 @@ export default class Ventas extends React.Component {
         const newUserState =  this.sliceSale(employeeName, saleId);
         const userIndex = this.state.stateUsers.findIndex(stateUser => stateUser.userName === employeeName)
         await this.setUserState(newUserState, userIndex);
-        this.setState({ errorMessage: '', successMessage: 'Venta Borrada', isLoadingDelete: false });
+        this.displayMessage({ errorMessage: '', successMessage: 'Venta Borrada', isLoadingDelete: false });
       }
     }catch(e) {
-      this.setState({ errorMessage: e.message, isLoadingDelete: false });
+      this.displayMessage({ errorMessage: e.message, isLoadingDelete: false });
     }
   }
 
@@ -134,11 +151,15 @@ export default class Ventas extends React.Component {
       }))
     }));
     const updatingSaleForm = this.state.stateUsers[userIndex];
+    const soldProduct = updatingSaleForm.sale[saleIndex].articulos
+      .map(articulo => articulo.articuloId);
+
     this.setState({
       stateUsers: [...newSalesByUser],
       updatingSaleForm: {
         inventario: updatingSaleForm.inventario,
-        availableInventario: updatingSaleForm.availableInventario,
+        availableInventario: updatingSaleForm.availableInventario
+          .filter(i => !soldProduct.includes(i.articuloId)),
         ...updatingSaleForm.sale[saleIndex],
         form: {
           ...updatingSaleForm.sale[saleIndex].form,
@@ -179,7 +200,7 @@ export default class Ventas extends React.Component {
     this.setState({ updatingSaleForm });
   }
 
-  async onSubmitForm(e) {
+  async onSubmitForm(e, userName, ventaId) {
     e.preventDefault();
     const errors = [];
     if (!this.state.updatingSaleForm.articulos.length) {
@@ -192,11 +213,12 @@ export default class Ventas extends React.Component {
       errors.push('falta agregar el metodo de pago');
     }
     if (errors.length) {
-      this.setState({ errorMessage: errors.join(',  ')});
+      this.displayMessage({ errorMessage: errors.join(',  ')});
       window.scroll({ top: 0,  behavior: 'smooth' });
       console.log('sale >>', this.state.updatingSaleForm);
       return;
     }
+    
 
     const toBeSaved = {
       ...this.state.updatingSaleForm.form,
@@ -205,8 +227,15 @@ export default class Ventas extends React.Component {
       total: +(this.state.updatingSaleForm.total.toFixed(2)),
       IVA: this.state.updatingSaleForm.IVA
     };
-    console.log('to  be saved >>>>>', toBeSaved);
-    
+    try {
+      const response = await Api.post(`${Api.VENTAS_URL}/${userName}/${ventaId}`, toBeSaved);
+      if (response && response.ventaId) {
+        this.refreshPage();
+        this.displayMessage({ successMessage: `la venta con id ${ventaId} de ${userName} ha sido editada`});
+      }
+    } catch(e) {
+      this.displayMessage({ errorMessage: e.message });
+    }
   }
 
   sortArticulo(a, b) {
@@ -215,6 +244,28 @@ export default class Ventas extends React.Component {
 
   sortByUserName(a ,b) {
     return a.userName < b.userName ? -1 : a.userName === b.userName ? 0 : 1;
+  }
+
+  displayMessage(message) {
+    this.setState(message);
+    setTimeout(() => {
+      this.setState({ errorMessage: '', successMessage: '' });
+    }, 6000);
+  }
+
+  message() {
+    return <React.Fragment>
+      {
+        this.state.errorMessage && <div  id="error-message" className="red accent-4 error-msg col s10 message">
+         {this.state.errorMessage}
+        </div>
+      }
+      {
+        this.state.successMessage && <div  id="sucess-message" className="teal accent-4 success-msg col s10 message">
+          {this.state.successMessage}
+        </div>
+      }
+    </React.Fragment>
   }
 
   getEmployeeHeader(empSales) {
@@ -250,6 +301,7 @@ export default class Ventas extends React.Component {
         <h5>Viendo desde <i>{this.state.fromDate}</i> a <i>{this.state.toDate}</i></h5>
       </div>
       <div className="row">
+          {this.message()}
           <div className="employees col s12 m10">
             {!this.state.stateUsers ? <Spinner/> : <Collapsible popout accordion={false}>
               {this.state.stateUsers.map((empSales, userIndex) => 
@@ -270,7 +322,7 @@ export default class Ventas extends React.Component {
                             </SalesForm> :
                             <SalesForm {...this.state.updatingSaleForm}
                               setFormField={(newFieldValue) => this.updateFromState(newFieldValue)}
-                              onSubmitForm={(e) => this.onSubmitForm(e)}
+                              onSubmitForm={(e) => this.onSubmitForm(e, sale.userName, sale.ventaId)}
                               updateState={(newState) => this.updateUserState(newState)}>
                                 <span className="sale-edit-mode-actions">
                                   <Button type="submit" disabled={this.state.ventaLoading}>

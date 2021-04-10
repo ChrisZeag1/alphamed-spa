@@ -32,8 +32,12 @@ export class SalesForm extends React.Component {
   }
 
   deleteProducto(index) {
-    const producto = this.props.articulos[index];
-    const produInventrio = this.props.inventario.find(a => a.articuloId === producto.articuloId);
+    const deletedArt = this.props.articulos[index];
+    const produInventrio = this.props.inventario.find(a => a.articuloId === deletedArt.articuloId);
+
+    if (this.props.ventaId){
+      produInventrio.cantidad += deletedArt.cantidad;
+    }
 
     const newArticulos = [
       ...this.props.articulos.slice(0, index),
@@ -133,6 +137,7 @@ export class SalesForm extends React.Component {
       total: newTotal
     });
   }
+
   getItemTotal(articulo) {
     const cantidad = _get(articulo, 'cantidad', 0);
     const precio =  _get(articulo, 'precio', 0);
