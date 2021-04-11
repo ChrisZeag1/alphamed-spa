@@ -1,8 +1,9 @@
 import React from 'react';
 import * as moment from 'moment';
 import {get as _get } from 'lodash';
-import { Collapsible, CollapsibleItem, Button } from 'react-materialize';
+import { Collapsible, CollapsibleItem, Button, DatePicker } from 'react-materialize';
 import { Spinner, SalesForm } from '../core/components';
+import { datePickerOptions } from '../core/components/date-picker/date-picker-options';
 import * as Api from '../core/api';
 import './ventas.scss';
 
@@ -13,35 +14,75 @@ export default class Ventas extends React.Component {
     descuento: '',
     total: 0
   };
+  datePickerStartOptions = {};
+  datePickerEndOptions = {};
+  selectedStartDate = '';
+  selectedEndDate = '';
+  defaultStartDate = moment('2020-11-29').startOf('day').format('YYYY-MM-DD HH:MM');
+  defaultEndDate = moment().endOf('day').format('YYYY-MM-DD HH:MM');
 
   constructor() {
     super();
     this.state = {
       totalSales: null,
       stateUsers: null,
-      fromDate: '2020-11-29',
       userNames: [],
-      toDate: moment().add(5, 'day').format('YYYY-MM-DD'),
+      fromDate: this.defaultStartDate,
+      toDate: this.defaultEndDate,
+      showDatePickers: true,
+      showResetFilter: false,
       updatingSaleForm: null,
       errorMessage: '',
       successMessage: '',
       isLoadingDelete: false,
     };
+    this.datePickerStartOptions = {
+      ...datePickerOptions,
+      defaultDate: new Date(this.state.fromDate),
+      onSelect: (e) => this.onStartDateChange(e)
+    };
+    this.datePickerEndOptions = {
+      ...datePickerOptions,
+      defaultDate: new Date(this.state.toDate),
+      onSelect: (e) => this.onEndDateChange(e)
+    };
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     this.user = JSON.parse(localStorage.getItem('am-user'));
-    this.refreshPage();
+    await this.refreshPage();
+    document.querySelectorAll('.datepicker-done').forEach((el) => {
+      el.addEventListener('click', this.onDoneDate.bind(this), null);
+    });
+  }
+
+  componentWillUnmount() {
+    document.querySelectorAll('.datepicker-done').forEach((el) => {
+      el.removeEventListener('click', this.onDoneDate.bind(this), null);
+    });
+  }
+
+  async onDoneDate() {
+    if(this.selectedStartDate) {
+      await this.setState({ fromDate: this.selectedStartDate, showResetFilter: true });
+      this.selectedStartDate = '';
+      this.refreshPage();
+    } else if (this.selectedEndDate) {
+      await this.setState({ toDate: this.selectedEndDate, showResetFilter: true });
+      this.selectedEndDate = '';
+      this.refreshPage();
+    }
   }
 
   async refreshPage() {
+    await this.setState({totalSales: null,  stateUsers: null});
     await this.getSales();
-    this.getAllInvetorio();
+    await this.getAllInvetorio();
   }
 
   async getSales() {
     try {
-      const queryDate = `?fromDate=${this.state.fromDate}=&toDate=${this.state.toDate}`;
+      const queryDate = `?fromDate=${this.state.fromDate}&toDate=${this.state.toDate}`;
       const sales = await Api.get(`${Api.VENTAS_URL}${queryDate}`);
       const stateUsers = (sales || [])
         .map(sale => ({
@@ -109,7 +150,7 @@ export default class Ventas extends React.Component {
     }
   }
 
-  async deleteSale(e, employeeName, saleId) {
+  async onDeleteSale(e, employeeName, saleId) {
     e.preventDefault();
     if (this.state.isLoadingDelete) {
       return;
@@ -125,6 +166,43 @@ export default class Ventas extends React.Component {
       }
     }catch(e) {
       this.displayMessage({ errorMessage: e.message, isLoadingDelete: false });
+    }
+  }
+
+
+  async onSaleEdit(e, userName, ventaId) {
+    e.preventDefault();
+    const errors = [];
+    if (!this.state.updatingSaleForm.articulos.length) {
+      errors.push('No hay articulos para vender');
+    }
+    if (this.state.updatingSaleForm.articulos.some(a => !a.cantidad)) {
+      errors.push('hay articulos sin cantidad');
+    }
+    if (!this.state.updatingSaleForm.form.metodoPago) {
+      errors.push('falta agregar el metodo de pago');
+    }
+    if (errors.length) {
+      this.displayMessage({ errorMessage: errors.join(',  ')});
+      window.scroll({ top: 0,  behavior: 'smooth' });
+      return;
+    }
+    const toBeSaved = {
+      ...this.state.updatingSaleForm.form,
+      articulos: this.state.updatingSaleForm.articulos.filter(a => a.articuloId),
+      subTotal: +(this.state.updatingSaleForm.subTotal.toFixed(2)),
+      total: +(this.state.updatingSaleForm.total.toFixed(2)),
+      IVA: this.state.updatingSaleForm.IVA
+    };
+
+    try {
+      const response = await Api.post(`${Api.VENTAS_URL}/${userName}/${ventaId}`, toBeSaved);
+      if (response && response.ventaId) {
+        this.refreshPage();
+        this.displayMessage({ successMessage: `la venta con id ${ventaId} de ${userName} ha sido editada`});
+      }
+    } catch(e) {
+      this.displayMessage({ errorMessage: e.message });
     }
   }
 
@@ -188,7 +266,6 @@ export default class Ventas extends React.Component {
     });
   }
 
-  
   updateFromState(newFieldValue) {
     const updatingSaleForm = {
       ...this.state.updatingSaleForm,
@@ -198,44 +275,6 @@ export default class Ventas extends React.Component {
       }
     };
     this.setState({ updatingSaleForm });
-  }
-
-  async onSubmitForm(e, userName, ventaId) {
-    e.preventDefault();
-    const errors = [];
-    if (!this.state.updatingSaleForm.articulos.length) {
-      errors.push('No hay articulos para vender');
-    }
-    if (this.state.updatingSaleForm.articulos.some(a => !a.cantidad)) {
-      errors.push('hay articulos sin cantidad');
-    }
-    if (!this.state.updatingSaleForm.form.metodoPago) {
-      errors.push('falta agregar el metodo de pago');
-    }
-    if (errors.length) {
-      this.displayMessage({ errorMessage: errors.join(',  ')});
-      window.scroll({ top: 0,  behavior: 'smooth' });
-      console.log('sale >>', this.state.updatingSaleForm);
-      return;
-    }
-    
-
-    const toBeSaved = {
-      ...this.state.updatingSaleForm.form,
-      articulos: this.state.updatingSaleForm.articulos.filter(a => a.articuloId),
-      subTotal: +(this.state.updatingSaleForm.subTotal.toFixed(2)),
-      total: +(this.state.updatingSaleForm.total.toFixed(2)),
-      IVA: this.state.updatingSaleForm.IVA
-    };
-    try {
-      const response = await Api.post(`${Api.VENTAS_URL}/${userName}/${ventaId}`, toBeSaved);
-      if (response && response.ventaId) {
-        this.refreshPage();
-        this.displayMessage({ successMessage: `la venta con id ${ventaId} de ${userName} ha sido editada`});
-      }
-    } catch(e) {
-      this.displayMessage({ errorMessage: e.message });
-    }
   }
 
   sortArticulo(a, b) {
@@ -251,6 +290,36 @@ export default class Ventas extends React.Component {
     setTimeout(() => {
       this.setState({ errorMessage: '', successMessage: '' });
     }, 6000);
+  }
+
+  onStartDateChange(date) {
+    this.selectedStartDate = moment(date).startOf('day').format('YYYY-MM-DD HH:MM');
+  }
+
+  onEndDateChange(date) {
+    this.selectedEndDate = moment(date).endOf('day').format('YYYY-MM-DD HH:MM');
+  }
+
+  async resetDatesToDefault(e) {
+    e.preventDefault();
+    this.datePickerStartOptions = {
+      ...datePickerOptions,
+      defaultDate: new Date(this.defaultStartDate),
+    };
+    this.datePickerEndOptions = {
+      ...datePickerOptions,
+      defaultDate: new Date(this.defaultEndDate),
+    };
+    await this.setState({
+      fromDate: this.defaultStartDate,
+      toDate: this.defaultEndDate,
+      showResetFilter: false,
+      showDatePickers: false,
+    });
+    await this.refreshPage();
+    await this.setState({
+      showDatePickers: true,
+    });
   }
 
   message() {
@@ -298,12 +367,21 @@ export default class Ventas extends React.Component {
     return <div id="ventas">
       <div className="ventas__header">
         <h1>Ventas</h1>
-        <h5>Viendo desde <i>{this.state.fromDate}</i> a <i>{this.state.toDate}</i></h5>
+        <div className="filter-headers">
+        <h5>Viendo desde </h5>
+          {this.state.showDatePickers && <DatePicker options={this.datePickerStartOptions}/>}
+          a 
+          {this.state.showDatePickers && <DatePicker options={this.datePickerEndOptions}/>}
+          {
+            this.state.showResetFilter &&
+              <a className="reset-btn" onClick={(e) => this.resetDatesToDefault(e) }>Clear</a>
+          }
+        </div>
       </div>
       <div className="row">
           {this.message()}
           <div className="employees col s12 m10">
-            {!this.state.stateUsers ? <Spinner/> : <Collapsible popout accordion={false}>
+            {!this.state.stateUsers ? <Spinner/> : <Collapsible popout accordion={false} className="main-header">
               {this.state.stateUsers.map((empSales, userIndex) => 
                 <CollapsibleItem expanded={true}
                   key={empSales.userName + userIndex}
@@ -322,7 +400,7 @@ export default class Ventas extends React.Component {
                             </SalesForm> :
                             <SalesForm {...this.state.updatingSaleForm}
                               setFormField={(newFieldValue) => this.updateFromState(newFieldValue)}
-                              onSubmitForm={(e) => this.onSubmitForm(e, sale.userName, sale.ventaId)}
+                              onSubmitForm={(e) => this.onSaleEdit(e, sale.userName, sale.ventaId)}
                               updateState={(newState) => this.updateUserState(newState)}>
                                 <span className="sale-edit-mode-actions">
                                   <Button type="submit" disabled={this.state.ventaLoading}>
@@ -330,7 +408,7 @@ export default class Ventas extends React.Component {
                                     <span>Guardar</span> : <span>Cargando ...</span>}
                                   </Button>
                                   <a className={`delete ${this.state.isLoadingDelete ? 'disabled' : ''}`}
-                                    onClick={(e) => this.deleteSale(e, sale.userName, sale.ventaId)}>
+                                    onClick={(e) => this.onDeleteSale(e, sale.userName, sale.ventaId)}>
                                     <i className="material-icons small">delete_forever</i>
                                     { !this.state.isLoadingDelete ? <span>ELIMINAR</span> :
                                     <span>ELIMINANDO...</span> }

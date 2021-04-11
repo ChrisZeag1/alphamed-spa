@@ -12,6 +12,11 @@
     }
   }
 
+  .reset-btn {
+    cursor: pointer;
+    text-transform: uppercase;
+  }
+
   .message {
     padding: 10px;
     margin: 0 20px;
@@ -19,6 +24,16 @@
     left: 50%;
     top: 30px;
     transform: translateX(-50%);
+  }
+
+  .filter-headers {
+    display: flex;
+    align-items: baseline;
+
+    div.col {
+      margin-left: 10px;
+      margin-right: 10px;
+    }
   }
 
   .sales-form {
@@ -47,10 +62,17 @@
     }
   }
 
+  .main-header {
+    >li> .collapsible-header {
+      background: #b3e5fc;
+    }
+  }
+
   .employee-header-sumary {
     display: flex;
     justify-content: space-between;
     width: 100%;
+
 
     .sumary-el {
       padding: 0 3px;

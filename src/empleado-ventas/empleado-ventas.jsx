@@ -14,9 +14,9 @@ export default class EmpleadoVentas extends React.Component {
     facturaEmail: '',
     nota: '',
     metodoPago: '',
-    fechaVenta: moment(),
+    fechaVenta: moment().startOf('day'),
     rfc: ''
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -35,18 +35,13 @@ export default class EmpleadoVentas extends React.Component {
       IVA: false
     };
 
-    try {
-      this.userName = _get(JSON.parse(localStorage.getItem('am-user')), 'userName');
-    } catch(e) {
-      console.error('error parsing user obj');
-    }
-
     this.updateState = this.updateState.bind(this);
     this.setFormField = this.setFormField.bind(this);
     this.onSubmitForm = this.onSubmitForm.bind(this);
   }
 
   componentDidMount() {
+    this.userName = _get(JSON.parse(localStorage.getItem('am-user')), 'userName');
     this.getInvetorio();
   }
 
@@ -55,7 +50,7 @@ export default class EmpleadoVentas extends React.Component {
   }
 
   setFormField(newFieldValue) {
-    this.setState({ form: { ...this.state.form, ...newFieldValue} } )
+    this.setState({ form: { ...this.state.form, ...newFieldValue } } );
   }
 
   clearForm() {
@@ -67,7 +62,7 @@ export default class EmpleadoVentas extends React.Component {
       subTotal: 0,
       total: 0,
       IVA: false
-    })
+    });
 
   }
 

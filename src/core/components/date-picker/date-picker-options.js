@@ -6,7 +6,7 @@ export const datePickerOptions = {
   disableWeekends: false,
   events: [],
   firstDay: 0,
-  format: 'dd/mm/yyyy',
+  format: 'd mmmm, yyyy',
   i18n: {
     cancel: 'Cancelar',
     clear: 'Borrar',

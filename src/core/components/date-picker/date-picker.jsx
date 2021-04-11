@@ -11,7 +11,7 @@ export const AlphaDatePicker = (props) => {
     ...(props.datePickerOptions || {}),
     defaultDate: (props.currentDay || moment()).toDate(),
     onSelect: props.onDateSelect
-  }
+  };
 
   const clearPicker = () => {
     setResetDatePicker(false);
