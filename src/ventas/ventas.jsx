@@ -329,11 +329,11 @@ export default class Ventas extends React.Component {
       e.preventDefault();
     }
     this.datePickerStartOptions = {
-      ...datePickerOptions,
+      ...this.datePickerStartOptions,
       defaultDate: new Date(this.defaultStartDate),
     };
     this.datePickerEndOptions = {
-      ...datePickerOptions,
+      ...this.datePickerEndOptions,
       defaultDate: new Date(this.defaultEndDate),
     };
     await this.setState({
