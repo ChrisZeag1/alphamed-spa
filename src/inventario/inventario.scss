@@ -8,6 +8,15 @@
     }
   }
 
+  .user-name-filter {
+    font-style: italic;
+    text-transform: capitalize;
+  }
+
+  .width-80 {
+    width: 80%;
+  }
+
   .right-content {
     display: flex;
     justify-content: flex-end;

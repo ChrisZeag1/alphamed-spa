@@ -10,6 +10,7 @@ export default class Inventario extends React.Component {
     articulo: '',
     precio: '',
   };
+  selectedUser = {};
 
   constructor(props) {
     super(props)
@@ -22,14 +23,18 @@ export default class Inventario extends React.Component {
       errorMessage: '',
       tobeSaved: {},
       newItemFrom: {}
-    }
+    };
     this.handleSubmitNewItem = this.handleSubmitNewItem.bind(this);
     this.modalOptions = {
       onCloseStart: () => this.setState({ isModalOpen: false, newItemFrom: { ...this.newItemFrom }, errorMessage: '' })
     };
   }
-
+  
   componentDidMount() {
+    this.selectedUser = {
+      name: this.getQueryParam('name'),
+      userName: this.getQueryParam('userName')
+    };
     this.getInventario();
   }
 
@@ -47,11 +52,12 @@ export default class Inventario extends React.Component {
     try {
       const inventario = await Api.get(Api.INVENTARIO_URL);
       let dynamicFields = Object.keys(inventario[0]).filter(key => !STATIC_FIELDS.includes(key));
-      const queryParam = this.getQueryParam('userName');
-      if(queryParam) {
-        dynamicFields = dynamicFields.filter(fieldName => fieldName === queryParam);
+
+      if(this.selectedUser.userName) {
+        dynamicFields = dynamicFields.filter(fieldName => fieldName === this.selectedUser.userName);
         this.toggleEditMode();
       }
+
       const newItemFromFields = dynamicFields.reduce((acc, fieldName) => {
         acc[fieldName] = '';
         return acc;
@@ -60,7 +66,12 @@ export default class Inventario extends React.Component {
         ...this.newItemFrom,
         ...newItemFromFields,
       }
-      this.setState({ inventario, dynamicFields, isLoading: false, errorMessage: null });
+      this.setState({
+        inventario: inventario.sort(this.sortArticulo),
+        dynamicFields,
+        isLoading: false,
+        errorMessage: null
+      });
 
     } catch(e) {
       this.setState({ errorMessage: e.message, isLoading: false })
@@ -78,9 +89,10 @@ export default class Inventario extends React.Component {
   }
 
 
-  async handleChange(e, item, df) {
+  async handleChange(newValue, item, df) {
+    
     const newItem = {
-      [df]: +e.target.value,
+      [df]: newValue,
       articuloId: item.articuloId
     };
     const itemIndex = this.state.inventario.findIndex(value =>value.articuloId === item.articuloId);
@@ -144,7 +156,10 @@ export default class Inventario extends React.Component {
       this.setState({ errorMessage: e.message, isLoading: false })
     }
   }
-  
+
+  sortArticulo(a, b) {
+    return a.articulo < b.articulo ? -1 : a.articulo === b.articulo ? 0 : 1;
+  }
 
   table() {
     return <table className="row-hover row">
@@ -152,21 +167,32 @@ export default class Inventario extends React.Component {
         <tr>
           <th>Articulo</th>
           <th>precio</th>
-          {this.state.dynamicFields.map(field => <th key={field}>{field}</th>)}
+          {this.state.dynamicFields.map(field => <th key={field}>{ this.selectedUser.name ? 'Canitdad' : field}</th>)}
           {this.state.isEditMode && <th>Acciones</th> }
         </tr>
       </thead>
       <tbody>
         {(this.state.inventario || []).map(item => <tr key={item.articuloId}>
-          <td>{item.articulo}</td>
-          <td>${item.precio} MXN</td>
+          <td>{
+            (!this.state.isEditMode || this.selectedUser.name)  ? item.articulo : 
+              <input type="text" value={item.articulo} onChange={(e) => this.handleChange(e.target.value, item, 'articulo') }/>
+          }</td>
+
+          <td>${
+            (!this.state.isEditMode || this.selectedUser.userName) ? item.precio :
+              <input className="width-80" type="number" value={item.precio} onChange={(e) => this.handleChange(+e.target.value, item, 'precio') }/>
+          } MXN</td>
+
           {this.state.dynamicFields
             .map(df =>
               <td key={item.articuloId + ' ' + df}>
-              {!this.state.isEditMode  ? <span>{item[df]}</span> : 
-              <input type="number" value={item[df]} onChange={(e) => this.handleChange(e, item, df) }/>}
+                {
+                  !this.state.isEditMode  ? <span>{item[df]}</span> : 
+                    <input type="number" value={item[df]} onChange={(e) => this.handleChange(+e.target.value, item, df) }/>
+                }
               </td>
           )}
+
           {this.state.isEditMode && <td><Button
               className="red lighten-2"
               onClick={() => this.deleteItemAndUpdate(item)}
@@ -205,6 +231,7 @@ export default class Inventario extends React.Component {
         <ButtonSave/>
        }
       </h1>
+      {this.selectedUser.name && <h5>Viendo para:  <span className="user-name-filter">{ this.selectedUser.name }</span></h5>}
        <Modal options={this.modalOptions}
               open={this.state.isModalOpen}
               actions={[

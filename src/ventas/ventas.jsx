@@ -48,12 +48,20 @@ export default class Ventas extends React.Component {
     };
   }
 
+  getQueryParam(paramName) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(paramName);
+  }
+
+
   async componentDidMount() {
     this.user = JSON.parse(localStorage.getItem('am-user'));
+    await this.getPeriod();
     await this.refreshPage();
     document.querySelectorAll('.datepicker-done').forEach((el) => {
       el.addEventListener('click', this.onDoneDate.bind(this), null);
     });
+    console.log('state >>> ', this.state);
   }
 
   componentWillUnmount() {
@@ -80,11 +88,28 @@ export default class Ventas extends React.Component {
     await this.getAllInvetorio();
   }
 
+  async getPeriod() {
+    let startOfPeriod = localStorage.getItem('startOfPeriod');
+    if (!startOfPeriod) {
+      startOfPeriod = await Api.get(`${Api.PERIODS_URL}/latest`);
+    }
+    this.defaultStartDate = moment(startOfPeriod).startOf('day').format('YYYY-MM-DD HH:MM');
+    await this.resetDatesToDefault();
+    await this.setState({
+      showDatePickers: true,
+    });
+  }
+
   async getSales() {
     try {
+      const selectedUserName = this.getQueryParam('userName');
       const queryDate = `?fromDate=${this.state.fromDate}&toDate=${this.state.toDate}`;
       const sales = await Api.get(`${Api.VENTAS_URL}${queryDate}`);
-      const stateUsers = (sales || [])
+      let stateUsers = sales || [];
+      if (selectedUserName) {
+        stateUsers = stateUsers.filter(sales => sales.userName === selectedUserName);
+      }
+      stateUsers = stateUsers
         .map(sale => ({
           IVA: sale.IVA,
           fechaVenta: sale.fechaVenta,
@@ -216,7 +241,6 @@ export default class Ventas extends React.Component {
     return userState;
   }
 
-
   toggleEditMode(userIndex, saleIndex) {
     const newSalesByUser = this.state.stateUsers.map((saleByUser, i) => ({
       ...saleByUser,
@@ -301,7 +325,9 @@ export default class Ventas extends React.Component {
   }
 
   async resetDatesToDefault(e) {
-    e.preventDefault();
+    if (e) {
+      e.preventDefault();
+    }
     this.datePickerStartOptions = {
       ...datePickerOptions,
       defaultDate: new Date(this.defaultStartDate),
@@ -316,6 +342,10 @@ export default class Ventas extends React.Component {
       showResetFilter: false,
       showDatePickers: false,
     });
+  }
+
+  async resetDatesToDefaultAndRefresh() {
+    await this.resetDatesToDefault();
     await this.refreshPage();
     await this.setState({
       showDatePickers: true,
@@ -374,7 +404,7 @@ export default class Ventas extends React.Component {
           {this.state.showDatePickers && <DatePicker options={this.datePickerEndOptions}/>}
           {
             this.state.showResetFilter &&
-              <a className="reset-btn" onClick={(e) => this.resetDatesToDefault(e) }>Clear</a>
+              <a className="reset-btn" onClick={(e) => this.resetDatesToDefaultAndRefresh(e) }>Clear</a>
           }
         </div>
       </div>

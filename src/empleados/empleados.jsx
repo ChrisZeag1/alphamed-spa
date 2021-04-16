@@ -8,20 +8,22 @@ import { Modal, Select, Button } from 'react-materialize';
 export const Actions = (props) => (
   <ul className="collection z-depth-4">
     <li className="collection-item"  key="invetario">
-      <Link to={"/invetario?userName=" + props.userName}>
+      <Link to={`/invetario?userName=${props.user.userName}&name=${props.user.nombre}`}>
         <i className="small material-icons">library_books</i>
         <span>Invetario</span>
       </Link>
     </li>
     <li className="collection-item" key="ventas">
-      <i className="small material-icons">attach_money</i>
-      <span>Ventas</span>
+      <Link to={`/ventas?userName=${props.user.userName}&name=${props.user.nombre}`}>
+        <i className="small material-icons">attach_money</i>
+        <span>Ventas</span>
+      </Link>
     </li>
     <li className="collection-item" key="delete">
       <Button className="waves-effect waves-teal btn-flat"
               disabled={props.isLoading}
               flat={true}
-              onClick={() => props.delUpdate(props.userName)}>
+              onClick={() => props.delUpdate(props.user.userName)}>
         {!props.isLoading ? <span>
           <i className="small material-icons">delete</i>
             Elimiar
@@ -151,7 +153,7 @@ export default class Empleados extends React.Component {
               <a className="btn-floating btn-large" onClick={(e) => { this.toggleActionChange(index); } }>
                 <i className="large material-icons">mode_edit</i>
               </a>
-              {this.state.toogleAction[index] && <Actions delUpdate={this.delUpdate} isLoading={this.state.isLoading} userName={user.userName}/>}
+              {this.state.toogleAction[index] && <Actions delUpdate={this.delUpdate} isLoading={this.state.isLoading} user={user}/>}
             </td>
           </tr>
         ))}
