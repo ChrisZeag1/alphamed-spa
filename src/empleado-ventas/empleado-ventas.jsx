@@ -14,7 +14,6 @@ export default class EmpleadoVentas extends React.Component {
     facturaEmail: '',
     nota: '',
     metodoPago: '',
-    fechaVenta: moment().startOf('day'),
     rfc: ''
   };
 
@@ -22,6 +21,7 @@ export default class EmpleadoVentas extends React.Component {
     super(props);
     this.state = {
       inventario: null,
+      fechaVenta: moment(),
       availableInventario: null,
       ventaLoading: false,
       form: {
@@ -91,6 +91,7 @@ export default class EmpleadoVentas extends React.Component {
     const toBeSaved = {
       ...this.state.form,
       articulos: this.state.articulos.filter(a => a.articuloId),
+      fechaVenta: this.state.fechaVenta.format('YYYY-MM-DD HH:MM:SS'),
       subTotal: +(this.state.subTotal.toFixed(2)),
       total: +(this.state.total.toFixed(2)),
       IVA: this.state.IVA
@@ -143,7 +144,7 @@ export default class EmpleadoVentas extends React.Component {
     return <div id="empleado-ventas">
       <div className="title">
         <h2>venta</h2>
-        <h5 className="fecha-venta">{this.state.form.fechaVenta.format('DD/MM/YYYY')}</h5>
+        <h5 className="fecha-venta">{this.state.fechaVenta.format('DD/MM/YYYY')}</h5>
       </div>
       {this.state.errorMessage &&
         <div  id="error-message" className="red accent-4 error-msg">{this.state.errorMessage}
@@ -158,7 +159,7 @@ export default class EmpleadoVentas extends React.Component {
           <Button type="submit" disabled={this.state.ventaLoading}>
             {!this.state.ventaLoading ?
               <span>Vender</span> : <span>Cargando ...</span>}
-          </Button>            
+          </Button>
         </SalesForm>
     </div>;
   }

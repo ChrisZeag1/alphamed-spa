@@ -1,0 +1,33 @@
+#my-sales {
+  margin: 15px;
+  margin-top: 0;
+
+  .employee-header-sumary {
+    width: 100%;
+
+    .sumary-el {
+      padding: 0 5px;
+
+      &.main {
+        font-weight: 600;
+      }
+
+      &.money {
+        color: #00bfa5;
+      }
+    }
+
+    .sale-summary-info {
+      display: flex;
+      width: 100%;
+
+      &.between {
+        justify-content: space-between;
+      }
+      &.end {
+        justify-content: flex-end;
+      }
+    }
+
+  }
+}

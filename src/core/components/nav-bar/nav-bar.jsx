@@ -13,12 +13,13 @@ export const NavBar = (props) => {
           </div>
         </a>
       </li>
-      { routes.map(r => <li key={r.path}>
+      {
+        routes.map(r => <li key={r.path}>
           <NavLink to={r.path} activeClassName="selected">
           <i title={r.name} className="large material-icons">{r.icon}</i>
           </NavLink>
-        </li>
-      )}
+        </li>)
+      }
     </ul>
   </nav>
 };

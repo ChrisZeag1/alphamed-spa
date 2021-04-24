@@ -2,6 +2,7 @@ import React from 'react';
 import * as Api from '../core/api';
 import './empleado-invetario.scss';
 import { Spinner } from '../core/components';
+import { get as _get } from 'lodash';
 
 export default class EmpleadoInventario extends React.Component {
   userName = '';
@@ -15,10 +16,10 @@ export default class EmpleadoInventario extends React.Component {
       search: '',
       invetarioFiltrado: []
     };
-    this.userName = 'Ricardo234';
   }
 
   componentDidMount() {
+    this.userName = _get(JSON.parse(localStorage.getItem('am-user')), 'userName');
     this.getInventario();
   }
 
@@ -45,7 +46,7 @@ export default class EmpleadoInventario extends React.Component {
         errorMessage: null
       });
     } catch(e) {
-      this.setState({ errorMessage: e.message, isLoading: false })
+      this.setState({ errorMessage: e.message, isLoading: false });
     }
   }
 
