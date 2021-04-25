@@ -94,18 +94,24 @@ export class SalesForm extends React.Component {
         articulo.cantidad : articuloEnInvetorio.cantidad;
     }
 
-    const cantidad = _get(articulo, 'cantidad') || +currentArticulos[index].cantidad || 0;
-    const descuento = _get(articulo, 'descuento') || +currentArticulos[index].descuento || 0;
-    const articuloEnInvetorio = this.props.inventario.find(a => 
+    const newArt = { ...currentArticulos[index], ...articulo };
+
+    const cantidad = _get(newArt, 'cantidad', 0);
+    const descuento = _get(newArt, 'descuento', 0)
+    const articuloEnInvetorio = this.props.inventario.find(a =>
       a.articuloId === currentArticulos[index].articuloId
     );
-    const total = (cantidad * _get(articuloEnInvetorio, 'precio', 0)) - (descuento || 0);
-    
-    articulo.total = total;
+
+    const total = (cantidad * _get(articuloEnInvetorio, 'precio', 0)) - descuento;
+
+    newArt.total = total;
 
     if (articulo.articuloId) {
       const artIndex = this.props.availableInventario
       .findIndex((item) => item.articuloId === articulo.articuloId);
+      if (_get(this.props.articulos[index], 'articuloId')) {
+        newAvailableInventario.push(articuloEnInvetorio);
+      }
       newAvailableInventario = [
         ...this.props.availableInventario.slice(0, artIndex),
         ...this.props.availableInventario.slice(artIndex + 1, this.props.availableInventario.length),
@@ -114,7 +120,6 @@ export class SalesForm extends React.Component {
       .filter(i => i.cantidad);
     }
 
-    const newArt = { ...currentArticulos[index], ...articulo };
     newArticulos = [
       ...currentArticulos.slice(0, index),
       newArt,

@@ -116,12 +116,10 @@ export default class MisVentas extends React.Component {
   }
 
   async updateSalesOnDay(day) {
-    console.log('updating sales on  >>', day.format('lll'));
     const endOfWeek = moment(this.state.currentDay).endOf('week');
     const startOfWeek = moment(this.state.currentDay).startOf('week');
     await this.setState({ currentDay: day });
     if (day <= startOfWeek || day >= endOfWeek) {
-      console.log('getting new sales >>>>>>');
       await this.getSales();
     }
   }
