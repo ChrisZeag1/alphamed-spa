@@ -1,5 +1,5 @@
-import * as Api from '../core/api';
 import React from 'react';
+import * as Api from '../core/api';
 import { Spinner } from '../core/components';
 import './inventario.scss';
 import { Button, Modal } from 'react-materialize';

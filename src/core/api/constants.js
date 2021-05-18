@@ -10,3 +10,4 @@ export const INVENTARIO_URL = `${MAIN_URI}${ENVS[ENV]}/inventario`;
 export const VENTAS_URL = `${MAIN_URI}${ENVS[ENV]}/ventas`;
 export const LOGIN_URL = `${MAIN_URI}${ENVS[ENV]}/login`;
 export const PERIODS_URL = `${MAIN_URI}${ENVS[ENV]}/periods`;
+export const VIATICOS_URL = `${MAIN_URI}${ENVS[ENV]}/viaticos`;

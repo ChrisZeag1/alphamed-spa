@@ -1,0 +1,69 @@
+#fecha-viatico {
+
+  .input-field {
+    float: none;
+  }
+
+  label {
+    position: absolute;
+  }
+
+  .modal.datepicker-modal.open {
+    height: 100%;
+    width: 100%;
+    max-height: none;
+  }
+
+}
+
+#viaticos-total-form {
+  display: flex;
+  align-items: baseline;
+}
+
+#empleado-viaticos {
+  margin: 15px;
+
+  .message {
+    position: fixed;
+    width: 95%;
+    top: -3px;
+    z-index: 99;
+    width: 80%;
+  }
+
+
+  .collapsible-body {
+    position: relative;
+
+    .viatico-delete {
+      cursor: pointer;
+      color: #b71c1c;
+      position: absolute;
+      right: 5px;
+      top: 0;
+      margin: 5px;
+    }
+
+  }
+
+  .viatico-header {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+
+    .sumary-el {
+      padding: 0 5px;
+
+      &.main {
+        font-weight: 600;
+      }
+
+      &.money {
+        color: #00bfa5;
+      }
+
+    }
+
+  }
+}

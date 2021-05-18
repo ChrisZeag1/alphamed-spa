@@ -9,11 +9,18 @@
 
 }
 
-a.disabled {
+a.disabled, div.disabled {
   color: #b3b2b2 !important;
   cursor: default;
 }
 
 ul.dropdown-content.select-dropdown {
   top: 0 !important;
+}
+
+button {
+  i {
+    vertical-align: top;
+    padding-right: 5px;
+  }
 }

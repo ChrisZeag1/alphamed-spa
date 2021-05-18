@@ -26,7 +26,6 @@ export class SalesForm extends React.Component {
     this.formId = props.ventaId || 0;
   }
 
-
   sortArticulo(a, b) {
     return a.articulo < b.articulo ? -1 : a.articulo === b.articulo ? 0 : 1;
   }

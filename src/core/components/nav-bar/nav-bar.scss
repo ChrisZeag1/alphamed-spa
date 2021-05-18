@@ -76,8 +76,16 @@
       flex-direction: row;
       justify-content: space-evenly;
 
-      li a {
-        padding: 0;
+      li {
+
+        a {
+          padding: 0;
+        }
+
+        i {
+          font-size: 40px;
+        }
+
       }
 
     }
