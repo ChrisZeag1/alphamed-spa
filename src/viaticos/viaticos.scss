@@ -1,0 +1,77 @@
+#viaticos {
+
+  .main-header {
+    >li> .collapsible-header {
+      background: #b3e5fc;
+    }
+  }
+
+  .content {
+    text-transform: capitalize;
+    b {
+      padding: 0 5px;
+    }
+  }
+
+  .employee-header-sumary {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+
+    .money {
+      color: #00bfa5;
+      font-weight: 600;
+    }
+
+    .sumary-el {
+      padding: 0 3px;
+      display: inline-block;
+      word-break: break-word;
+      text-align: end;
+
+      &.s-w {
+        width: 80px;
+      }
+
+      &.m-w {
+        width: 130px;
+      }
+
+      &.ll-w {
+        width: 200px;
+      }
+
+      &.l-w {
+        width: 226px;
+      }
+
+      &.editing {
+        background-color: #26a69a;
+        color: white;
+        padding: 3px 8px;
+        text-align: center;
+        font-weight: 500;
+        border-radius: 3px;
+        margin: 0 5px;
+      }
+    }
+  }
+
+  .viaticos {
+    &__header {
+      display: flex;
+      align-items: baseline;
+
+      h5 {
+        margin: 0 15px;
+      }
+
+    }
+  }
+
+  div.col {
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+
+}

@@ -369,11 +369,11 @@ export default class Ventas extends React.Component {
 
   getEmployeeHeader(empSales) {
     return <div className="employee-header-sumary">
-      <div className="to-left">{empSales.userName}</div>
+      <div className="to-left"><b>{empSales.userName}</b></div>
       <div className="to-right">
         <div className="sumary-el s-w">{empSales.salesQuantity} U</div>
         <div className="sumary-el m-w">{empSales.sale.length} Ventas</div>
-        <div className="sumary-el l-w">$ {empSales.subTotal} MXN</div>
+        <div className="sumary-el l-w"><b>$ {empSales.subTotal.toFixed(2)} MXN</b></div>
       </div>
     </div>;
   }
@@ -388,7 +388,7 @@ export default class Ventas extends React.Component {
       <div className="to-right">
         <div className="sumary-el s-w">{sale.articulos.length} U</div>
           <div className="sumary-el s-w">IVA: {sale.IVA ? 'SI': 'NO'}</div>
-        <div className="sumary-el ll-w">$ {sale.subTotal} MXN</div>
+        <div className="sumary-el ll-w">$ {sale.subTotal.toFixed(2)} MXN</div>
       </div>
     </div>
   }
@@ -398,13 +398,14 @@ export default class Ventas extends React.Component {
       <div className="ventas__header">
         <h1>Ventas</h1>
         <div className="filter-headers">
-        <h5>Viendo desde </h5>
+          <h5>Viendo desde </h5>
           {this.state.showDatePickers && <DatePicker options={this.datePickerStartOptions}/>}
           a 
           {this.state.showDatePickers && <DatePicker options={this.datePickerEndOptions}/>}
-          {
-            this.state.showResetFilter &&
-              <a className="reset-btn" onClick={(e) => this.resetDatesToDefaultAndRefresh(e) }>Clear</a>
+          {this.state.showResetFilter &&
+              <a className="reset-btn" onClick={(e) => this.resetDatesToDefaultAndRefresh(e) }>
+                Clear
+              </a>
           }
         </div>
       </div>
