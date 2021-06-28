@@ -18,8 +18,8 @@ export default class Ventas extends React.Component {
   datePickerEndOptions = {};
   selectedStartDate = '';
   selectedEndDate = '';
-  defaultStartDate = moment('2020-11-29').startOf('day').format('YYYY-MM-DD HH:MM');
-  defaultEndDate = moment().endOf('day').format('YYYY-MM-DD HH:MM');
+  defaultStartDate = moment('2020-11-29').startOf('day').format('YYYY-MM-DD HH:mm:ss');
+  defaultEndDate = moment().endOf('day').format('YYYY-MM-DD HH:mm:ss');
 
   constructor() {
     super();
@@ -93,7 +93,7 @@ export default class Ventas extends React.Component {
     if (!startOfPeriod) {
       startOfPeriod = await Api.get(`${Api.PERIODS_URL}/latest`);
     }
-    this.defaultStartDate = moment(startOfPeriod).startOf('day').format('YYYY-MM-DD HH:MM');
+    this.defaultStartDate = moment(startOfPeriod).startOf('day').format('YYYY-MM-DD HH:mm:ss');
     await this.resetDatesToDefault();
     await this.setState({
       showDatePickers: true,
@@ -317,11 +317,11 @@ export default class Ventas extends React.Component {
   }
 
   onStartDateChange(date) {
-    this.selectedStartDate = moment(date).startOf('day').format('YYYY-MM-DD HH:MM');
+    this.selectedStartDate = moment(date).startOf('day').format('YYYY-MM-DD HH:mm:ss');
   }
 
   onEndDateChange(date) {
-    this.selectedEndDate = moment(date).endOf('day').format('YYYY-MM-DD HH:MM');
+    this.selectedEndDate = moment(date).endOf('day').format('YYYY-MM-DD HH:mm:ss');
   }
 
   async resetDatesToDefault(e) {

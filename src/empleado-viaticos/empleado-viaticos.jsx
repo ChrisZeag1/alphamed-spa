@@ -12,7 +12,7 @@ export default class EmpleadoViaticos extends React.Component {
   fechaVenta;
   newViaticoEmptyFrom = {
     concepto: '',
-    fecha: moment().format('YYYY-MM-DD HH:MM'),
+    fecha: moment().format('YYYY-MM-DD HH:mm:ss'),
     lugar: '',
     tarjetas: false,
     total: null
@@ -55,8 +55,8 @@ export default class EmpleadoViaticos extends React.Component {
 
   async getViaticos() {
     this.setState({ viaticos: null });
-    const startOfWeek = moment(this.state.startOfPeriod).startOf('day').startOf('week').format('YYYY-MM-DD HH:MM');
-    const endOfWeek = moment().endOf('day').endOf('week').format('YYYY-MM-DD HH:MM');
+    const startOfWeek = moment(this.state.startOfPeriod).startOf('day').startOf('week').format('YYYY-MM-DD HH:mm:ss');
+    const endOfWeek = moment().endOf('day').endOf('week').format('YYYY-MM-DD HH:mm:ss');
     const fromToQuery = `?fromDate=${startOfWeek}&toDate=${endOfWeek}`;
     try {
       const viaticos = await Api.get(`${Api.VIATICOS_URL}/${this.userName}${fromToQuery}`);
@@ -69,7 +69,7 @@ export default class EmpleadoViaticos extends React.Component {
   async getPeriod() {
     try {
       const startOfPeriod = await Api.get(`${Api.PERIODS_URL}/latest`);
-      const defualtPastDate = moment().subtract(14, "days").format('YYYY-MM-DD HH:MM')
+      const defualtPastDate = moment().subtract(14, "days").format('YYYY-MM-DD HH:mm:ss')
       this.setState({ startOfPeriod:  startOfPeriod || defualtPastDate });
     } catch(e) {
       this.setState({errorMessage: e.message });
@@ -100,7 +100,7 @@ export default class EmpleadoViaticos extends React.Component {
   }
 
   onDateChange(date) {
-    this.fechaVenta = moment(date).startOf('day').format('YYYY-MM-DD HH:MM');
+    this.fechaVenta = moment(date).startOf('day').format('YYYY-MM-DD HH:mm:ss');
   }
 
   onDoneDate() {
@@ -122,7 +122,7 @@ export default class EmpleadoViaticos extends React.Component {
         this.setState({
           isSubmitLoading: false,
           isModalOpen: false,
-          viaticos: [...this.state.viaticos, { ...result, tarjetas: result.tarjetas + '' }],
+          viaticos: [...this.state.viaticos, { ...result, tarjetas: result.tarjetas + '' }].sort(this.sortViatico),
           successMessage: 'Viatico Guardado',
           errorMessage: ''
         });

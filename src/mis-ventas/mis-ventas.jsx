@@ -37,8 +37,8 @@ export default class MisVentas extends React.Component {
 
   async getSales() {
     const current = this.state.currentDay.format('YYYY-MM-DD');
-    const startOfWeek = moment(current).startOf('day').startOf('week').format('YYYY-MM-DD HH:MM');
-    const endOfWeek = moment(current).endOf('day').endOf('week').format('YYYY-MM-DD HH:MM');
+    const startOfWeek = moment(current).startOf('day').startOf('week').format('YYYY-MM-DD HH:mm:ss');
+    const endOfWeek = moment(current).endOf('day').endOf('week').format('YYYY-MM-DD HH:mm:ss');
     const queryWeek = `fromDate=${startOfWeek}&toDate=${endOfWeek}`;
     try {
       const sales = await Api.get(`${Api.VENTAS_URL}/${this.userName}?${queryWeek}`);

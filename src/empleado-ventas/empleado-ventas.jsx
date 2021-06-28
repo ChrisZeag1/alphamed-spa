@@ -91,7 +91,7 @@ export default class EmpleadoVentas extends React.Component {
     const toBeSaved = {
       ...this.state.form,
       articulos: this.state.articulos.filter(a => a.articuloId),
-      fechaVenta: this.state.fechaVenta.format('YYYY-MM-DD HH:MM:SS'),
+      fechaVenta: this.state.fechaVenta.format('YYYY-MM-DD HH:mm:ss:SS'),
       subTotal: +(this.state.subTotal.toFixed(2)),
       total: +(this.state.total.toFixed(2)),
       IVA: this.state.IVA
