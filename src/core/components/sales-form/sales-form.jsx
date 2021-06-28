@@ -32,6 +32,8 @@ export class SalesForm extends React.Component {
 
   deleteProducto(index) {
     const deletedArt = this.props.articulos[index];
+    // deletedArt.total cuando es venta indivual 
+    const aritculoPrecioTotal = deletedArt.total || (deletedArt.cantidad * deletedArt.precio) - deletedArt.descuento;
     const produInventrio = this.props.inventario.find(a => a.articuloId === deletedArt.articuloId);
 
     if (this.props.ventaId){
@@ -47,10 +49,12 @@ export class SalesForm extends React.Component {
       ...this.props.availableInventario,
       produInventrio
     ].sort(this.sortArticulo);
-    
+    debugger;
     this.props.updateState({
       availableInventario: newAvailableInventario,
-      articulos: newArticulos
+      articulos: newArticulos,
+      subTotal: this.props.subTotal - aritculoPrecioTotal,
+      total: this.props.total - aritculoPrecioTotal
     });
   }
 
