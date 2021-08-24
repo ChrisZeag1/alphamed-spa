@@ -38,8 +38,21 @@ export default class Inventario extends React.Component {
     this.getInventario();
   }
 
-  toggleEditMode() {
-    this.setState({ isEditMode: !this.state.isEditMode });
+  async toggleEditMode() {
+    await this.setState({ isEditMode: !this.state.isEditMode });
+    if (this.state.isEditMode) {
+      const { dynamicFields } = this.state;
+      const dynamicFieldsWithHist = dynamicFields.reduce((acc, field) =>
+      acc.concat([field, field + '_HISTO'])
+      , []);
+      this.setState({
+        dynamicFields: dynamicFieldsWithHist
+      });
+    } else {
+      this.setState({
+        dynamicFields: this.getDinamicFields(this.state.inventario)
+      });
+    }
   }
 
   getQueryParam(paramName) {
@@ -51,12 +64,7 @@ export default class Inventario extends React.Component {
     this.setState({ inventario: null });
     try {
       const inventario = await Api.get(Api.INVENTARIO_URL);
-      let dynamicFields = Object.keys(inventario[0]).filter(key => !STATIC_FIELDS.includes(key));
-
-      if(this.selectedUser.userName) {
-        dynamicFields = dynamicFields.filter(fieldName => fieldName === this.selectedUser.userName);
-        this.toggleEditMode();
-      }
+      const dynamicFields = this.getDinamicFields(inventario);
 
       const newItemFromFields = dynamicFields.reduce((acc, fieldName) => {
         acc[fieldName] = '';
@@ -66,6 +74,7 @@ export default class Inventario extends React.Component {
         ...this.newItemFrom,
         ...newItemFromFields,
       }
+
       this.setState({
         inventario: inventario.sort(this.sortArticulo),
         dynamicFields,
@@ -82,6 +91,19 @@ export default class Inventario extends React.Component {
     this.setState({ isModalOpen: true });
   }
 
+  getDinamicFields(inventario) {
+    let dynamicFields = Object.keys(inventario[0])
+    .filter(key => !STATIC_FIELDS.includes(key))
+    .filter(fieldName => !fieldName.includes('_HISTO'));
+
+    if(this.selectedUser.userName) {
+      dynamicFields = dynamicFields
+        .filter(fieldName => fieldName === this.selectedUser.userName)
+      this.setState({ isEditMode: true });
+    }
+    return dynamicFields;
+  }
+
   handleFormFieldChange(e, formFieldName) {
     const isNumber = [...this.state.dynamicFields, 'precio'].includes(formFieldName);
     const value = isNumber ? +e.target.value : e.target.value;
@@ -90,11 +112,12 @@ export default class Inventario extends React.Component {
 
 
   async handleChange(newValue, item, df) {
-    
     const newItem = {
       [df]: newValue,
+      [`${df}_HISTO`]: newValue,
       articuloId: item.articuloId
     };
+
     const itemIndex = this.state.inventario.findIndex(value =>value.articuloId === item.articuloId);
     const newInventario = [
       ...this.state.inventario.slice(0, itemIndex),
@@ -117,15 +140,16 @@ export default class Inventario extends React.Component {
 
   async saveChangeAndUpdate() {
     if(!Object.values(this.state.tobeSaved).length) {
-      this.setState({ isEditMode: false });
+      await this.toggleEditMode();
       return;
     }
     this.setState({ isLoading: true });
     try {
       const update = await Api.put(Api.INVENTARIO_URL, Object.values(this.state.tobeSaved));
       if (update) {
-        this.setState({ isEditMode: false, tobeSaved: {} });
-        this.getInventario();
+        await this.setState({ tobeSaved: {} });
+        await this.toggleEditMode();
+        await this.getInventario();
       }
     }catch(e) {
       this.setState({ errorMessage: e.message, isLoading: false })
@@ -187,7 +211,7 @@ export default class Inventario extends React.Component {
             .map(df =>
               <td key={item.articuloId + ' ' + df}>
                 {
-                  !this.state.isEditMode  ? <span>{item[df]}</span> : 
+                  !this.state.isEditMode || df.includes('_HISTO') ? <span>{item[df]}</span> : 
                     <input type="number" value={item[df]} onChange={(e) => this.handleChange(+e.target.value, item, df) }/>
                 }
               </td>

@@ -4,6 +4,7 @@ import {get as _get } from 'lodash';
 import { Collapsible, CollapsibleItem, Button, DatePicker } from 'react-materialize';
 import { Spinner, SalesForm } from '../core/components';
 import { datePickerOptions } from '../core/components/date-picker/date-picker-options';
+import { totales } from './totales';
 import * as Api from '../core/api';
 import './ventas.scss';
 
@@ -20,6 +21,7 @@ export default class Ventas extends React.Component {
   selectedEndDate = '';
   defaultStartDate = moment('2020-11-29').startOf('day').format('YYYY-MM-DD HH:mm:ss');
   defaultEndDate = moment().endOf('day').format('YYYY-MM-DD HH:mm:ss');
+  hasInvetorio = false;
 
   constructor() {
     super();
@@ -85,14 +87,17 @@ export default class Ventas extends React.Component {
   async refreshPage() {
     await this.setState({totalSales: null,  stateUsers: null});
     await this.getSales();
-    await this.getAllInvetorio();
   }
 
   async getPeriod() {
-    let startOfPeriod = localStorage.getItem('startOfPeriod');
-    if (!startOfPeriod) {
+    let startOfPeriod;
+    try {
       startOfPeriod = await Api.get(`${Api.PERIODS_URL}/latest`);
+    }catch(e) {
+      console.error('unable to get period >', e);
+      startOfPeriod = moment().subtract(14, "days").format('YYYY-MM-DD HH:mm:ss')
     }
+
     this.defaultStartDate = moment(startOfPeriod).startOf('day').format('YYYY-MM-DD HH:mm:ss');
     await this.resetDatesToDefault();
     await this.setState({
@@ -145,6 +150,7 @@ export default class Ventas extends React.Component {
       this.displayMessage({ errorMessage: e.message });
     }
   }
+
   
 
   async getAllInvetorio() {
@@ -241,7 +247,11 @@ export default class Ventas extends React.Component {
     return userState;
   }
 
-  toggleEditMode(userIndex, saleIndex) {
+  async toggleEditMode(userIndex, saleIndex) {
+    if (!this.hasInvetorio) {
+      await this.getAllInvetorio();
+      this.hasInvetorio = true;
+    }
     const newSalesByUser = this.state.stateUsers.map((saleByUser, i) => ({
       ...saleByUser,
       sale: saleByUser.sale.map((sale, j) => ({
@@ -256,19 +266,31 @@ export default class Ventas extends React.Component {
     const soldProduct = updatingSaleForm.sale[saleIndex].articulos
       .map(articulo => articulo.articuloId);
 
-    this.setState({
+    await this.setState({
       stateUsers: [...newSalesByUser],
       updatingSaleForm: {
         inventario: updatingSaleForm.inventario,
         availableInventario: updatingSaleForm.availableInventario
           .filter(i => !soldProduct.includes(i.articuloId)),
         ...updatingSaleForm.sale[saleIndex],
+        articulos: updatingSaleForm.sale[saleIndex].articulos.map(a => ({
+          ...a,
+          total: this.getItemTotal(a)
+        })),
         form: {
           ...updatingSaleForm.sale[saleIndex].form,
           isReadMode: false
         }
       }
     });
+    console.log('updatingSaleForm > ', this.state.updatingSaleForm);
+  }
+
+  getItemTotal(articulo) {
+    const cantidad = _get(articulo, 'cantidad', 0);
+    const precio =  _get(articulo, 'precio', 0);
+    const descuento = _get(articulo, 'descuento', 0)
+    return  ((cantidad * precio) - (descuento));
   }
 
   setUserState(newUserState, userStateIndex) {
@@ -422,14 +444,12 @@ export default class Ventas extends React.Component {
                     {empSales.sale.map(((sale, saleIndex) => <CollapsibleItem
                       key={empSales.userName + sale.ventaId + saleIndex}
                       header={this.getEmployeeSalesHeader(sale)}>
-                        { empSales.inventario &&
+                        {
                           (sale.form.isReadMode  ?
-                            <SalesForm {...sale}
-                              availableInventario={empSales.availableInventario}
-                              inventario={empSales.inventario}>
+                            <SalesForm {...sale}>
                                 <Button onClick={(e) => {e.preventDefault();this.toggleEditMode(userIndex, saleIndex)}}>Editar</Button>
                             </SalesForm> :
-                            <SalesForm {...this.state.updatingSaleForm}
+                            empSales.inventario && <SalesForm {...this.state.updatingSaleForm}
                               setFormField={(newFieldValue) => this.updateFromState(newFieldValue)}
                               onSubmitForm={(e) => this.onSaleEdit(e, sale.userName, sale.ventaId)}
                               updateState={(newState) => this.updateUserState(newState)}>
@@ -446,7 +466,7 @@ export default class Ventas extends React.Component {
                                   </a>
                                 </span>                                
                             </SalesForm>)
-                       }
+                        }
                     </CollapsibleItem>))}
                   </Collapsible>
                 </CollapsibleItem>
@@ -454,8 +474,25 @@ export default class Ventas extends React.Component {
             </Collapsible>}
           </div>
       </div>
-      <div>
-      </div>
+      {this.state.totalSales && this.state.totalSales.length && <div className="totals row">
+        <ul className="collection with-header col s11 m5">
+          <li className="collection-header bluish"><h5>Total de Ventas</h5></li>
+          <li className="collection-item">
+            <p><b>Ventas sin IVA:</b> <span>$ {totales.getSinIva(this.state.totalSales).toFixed(2)}</span></p>
+          </li>
+          <li className="collection-item">
+            <p><b>Ventas con IVA: </b> <span>$ {totales.getConIva(this.state.totalSales).toFixed(2)}</span></p>
+          </li>
+        </ul>
+        <ul className="collection with-header col s11 m5">
+        <li className="collection-header bluish"><h5>Total por metodo de pago</h5></li>
+        {totales.getByMetodos(this.state.totalSales).map((metodoTotal) => (
+          <li className="collection-item">
+            <p><b>{metodoTotal.metodo}: </b> <span>$ {metodoTotal.total.toFixed(2)}</span></p>
+          </li>
+        ))}
+        </ul>
+      </div>}
     </div>
   }
 }

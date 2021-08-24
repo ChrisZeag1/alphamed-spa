@@ -21,9 +21,9 @@ export default class ManagerDashboard extends React.Component {
   }
 
   async componentDidMount() {
-    let startOfPeriod = localStorage.getItem('startOfPeriod');
+    let startOfPeriod = await Api.get(`${Api.PERIODS_URL}/latest`);
     if (!startOfPeriod) {
-      startOfPeriod = await Api.get(`${Api.PERIODS_URL}/latest`);
+      startOfPeriod = localStorage.getItem('startOfPeriod');
     }
     this.setState({ currentPeriod: {
       startOf: moment(startOfPeriod.split('T')[0]).format(DATE_FORMAT)

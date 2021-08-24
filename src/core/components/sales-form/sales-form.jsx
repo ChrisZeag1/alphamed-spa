@@ -80,16 +80,26 @@ export class SalesForm extends React.Component {
   setNewArticulo(articulo, index) {
     let newArticulos;
     let newAvailableInventario = this.props.availableInventario;
-    const currentArticulos = [...this.props.articulos];
-
+    let currentArticulos = [...this.props.articulos];
+    const inventario = _get(this.props, 'inventario', []);
+    
     if (typeof index !== 'number') {
       currentArticulos.push(articulo);
       index = currentArticulos.length - 1;
+    } else if(articulo.articuloId) {
+      currentArticulos = [
+        ...currentArticulos.slice(0, index),
+        {
+         ...this.articulo,
+         articuloId: articulo.articuloId
+        },
+        ...currentArticulos.slice(index + 1, currentArticulos.length),
+      ]
     }
 
     if (articulo.cantidad) {
       const id = currentArticulos[index].articuloId;
-      const articuloEnInvetorio = this.props.inventario.find(a =>
+      const articuloEnInvetorio = inventario.find(a =>
         a.articuloId === id
       );
       articulo.cantidad = articulo.cantidad > 0 ? articulo.cantidad : 0;
@@ -101,7 +111,7 @@ export class SalesForm extends React.Component {
 
     const cantidad = _get(newArt, 'cantidad', 0);
     const descuento = _get(newArt, 'descuento', 0)
-    const articuloEnInvetorio = this.props.inventario.find(a =>
+    const articuloEnInvetorio = inventario.find(a =>
       a.articuloId === currentArticulos[index].articuloId
     );
 
@@ -127,7 +137,7 @@ export class SalesForm extends React.Component {
       ...currentArticulos.slice(0, index),
       newArt,
       ...currentArticulos.slice(index + 1, currentArticulos.length),
-    ];    
+    ];
 
     const newSubTotal = newArticulos.reduce((acc, current) =>
       acc + (current.total ? current.total : this.getItemTotal(current) ), 0
@@ -153,13 +163,6 @@ export class SalesForm extends React.Component {
     return  ((cantidad * precio) - (descuento));
   }
 
-  getItemFormTotal(articulo) {
-    if (articulo.total) {
-      return articulo.total.toFixed(2);
-    }
-    return  this.getItemTotal(articulo).toFixed(2);
-  }
-
   getProducto(articulo, i) {
     return <div className={'row producto col s12 m5 '}
       id={`producto-${articulo.articuloId}`} key={`producto-${i}`}>
@@ -170,7 +173,7 @@ export class SalesForm extends React.Component {
         <i title="eliminar producto" className="small material-icons">clear</i>
       </div>}
       <div className="col s11">
-        <AlphaSelect
+      {this.props.inventario ? <AlphaSelect
           className="col s12 m6"
           availableItems={this.props.availableInventario}
           disabled={this.props.form.isReadMode}
@@ -178,7 +181,11 @@ export class SalesForm extends React.Component {
           value={articulo.articuloId}
           onChange={(item) => this.setNewArticulo({ articuloId: item.articuloId }, i)}
           label={'Producto'}>
-        </AlphaSelect>
+        </AlphaSelect> : 
+        <div className="producto-container">
+          <div>{articulo.articulo}</div>
+          <i className="small material-icons">arrow_drop_down</i>
+        </div> }
       </div>
       <div className="input-field col s4">
         <input value={articulo.cantidad}
@@ -196,12 +203,12 @@ export class SalesForm extends React.Component {
           disabled={!articulo.articuloId || this.props.form.isReadMode}
           onChange={(e) => this.setNewArticulo({ descuento: e.target.value ? +e.target.value : '' }, i)}
           type="number"/>
-        <label className={typeof articulo.descuento === 'number' ? 'active' : ''}   htmlFor={`descuento-${i}-${this.formId}`}>
+        <label className={typeof articulo.x === 'number' ? 'active' : ''}   htmlFor={`descuento-${i}-${this.formId}`}>
           Descuento
         </label>
       </div>
       <div className="input-field col s4">
-        <input value={`$ ${this.getItemFormTotal(articulo)}`} type="text" disabled/>
+        <input value={`$ ${ _get(articulo, 'total', 0).toFixed(2)}`} type="text" disabled/>
         <label className={articulo.total ? 'active' : ''} className="active">total</label>
       </div>
     </div>

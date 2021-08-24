@@ -184,7 +184,7 @@ export default class Empleados extends React.Component {
           ]}
           fixedFooter
           options={this.modalOptions}>
-        <h3> Agree un nuevo Empleado</h3>
+        <h3> Agregue un nuevo Empleado</h3>
         {this.state.errorMessage && <div className="red accent-4 error-msg">{this.state.errorMessage}</div>}
         <form onSubmit={this.handleSubmit}>
           <div className="row">
