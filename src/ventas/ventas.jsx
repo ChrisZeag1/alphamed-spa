@@ -37,6 +37,8 @@ export default class Ventas extends React.Component {
       errorMessage: '',
       successMessage: '',
       isLoadingDelete: false,
+      totalViaticos: 0,
+      totalEfectivoDisponible: 0
     };
     this.datePickerStartOptions = {
       ...datePickerOptions,
@@ -107,12 +109,12 @@ export default class Ventas extends React.Component {
 
   async getSales() {
     try {
-      const selectedUserName = this.getQueryParam('userName');
+      this.selectedUserName = this.getQueryParam('userName');
       const queryDate = `?fromDate=${this.state.fromDate}&toDate=${this.state.toDate}`;
       const sales = await Api.get(`${Api.VENTAS_URL}${queryDate}`);
       let stateUsers = sales || [];
-      if (selectedUserName) {
-        stateUsers = stateUsers.filter(sales => sales.userName === selectedUserName);
+      if (this.selectedUserName) {
+        stateUsers = stateUsers.filter(sales => sales.userName === this.selectedUserName);
       }
       stateUsers = stateUsers
         .map(sale => ({
@@ -146,11 +148,33 @@ export default class Ventas extends React.Component {
         stateUsers: Object.values(stateUsers).sort(this.sortByUserName),
         userNames: Object.keys(stateUsers)
       });
+      await this.getTotalViaticos();
     } catch(e) {
+      console.error(e);
       this.displayMessage({ errorMessage: e.message });
     }
   }
 
+
+  async getTotalViaticos() {
+    try {
+      const queryDate = `?fromDate=${this.state.fromDate}&toDate=${this.state.toDate}`;
+      const viaticos = await Api.get(`${Api.VIATICOS_URL}${queryDate}`);
+      const totalViaticos = Object.values((this.selectedUserName ? viaticos[this.selectedUserName] : viaticos) || {})
+        .reduce((allViaticos, employeeViaticos) =>(
+          allViaticos.concat(employeeViaticos)
+        ), [])
+        .reduce((acc, viatico) => (
+          acc + viatico.total
+        ), 0);
+        const totalEfectivoDisponible = totales.getByMetodos(this.state.totalSales, this.selectedUserName)
+          .find(m => m.metodo === 'Efectivo').total - totalViaticos;
+      await this.setState({ totalViaticos, totalEfectivoDisponible });
+    } catch(e) {
+      console.error(e);
+      this.displayMessage({ errorMessage: e.message });
+    }
+  }
   
 
   async getAllInvetorio() {
@@ -474,25 +498,36 @@ export default class Ventas extends React.Component {
             </Collapsible>}
           </div>
       </div>
-      {this.state.totalSales && this.state.totalSales.length && <div className="totals row">
-        <ul className="collection with-header col s11 m5">
+      <h3>Resumen</h3>
+      {this.state.totalSales && this.state.totalSales.length ? <div className="totals row">
+        <ul className="collection with-header col s11 m3">
           <li className="collection-header bluish"><h5>Total de Ventas</h5></li>
           <li className="collection-item">
-            <p><b>Ventas sin IVA:</b> <span>$ {totales.getSinIva(this.state.totalSales).toFixed(2)}</span></p>
+            <p><b>Ventas sin IVA:</b> <span>$ {totales.getSinIva(this.state.totalSales, this.selectedUserName).toFixed(2)}</span></p>
           </li>
           <li className="collection-item">
-            <p><b>Ventas con IVA: </b> <span>$ {totales.getConIva(this.state.totalSales).toFixed(2)}</span></p>
+            <p><b>Ventas con IVA: </b> <span>$ {totales.getConIva(this.state.totalSales, this.selectedUserName).toFixed(2)}</span></p>
           </li>
         </ul>
-        <ul className="collection with-header col s11 m5">
-        <li className="collection-header bluish"><h5>Total por metodo de pago</h5></li>
-        {totales.getByMetodos(this.state.totalSales).map((metodoTotal) => (
-          <li className="collection-item">
-            <p><b>{metodoTotal.metodo}: </b> <span>$ {metodoTotal.total.toFixed(2)}</span></p>
-          </li>
-        ))}
+        <ul className="collection with-header col s11 m3">
+          <li className="collection-header bluish"><h5>Total por metodo de pago</h5></li>
+          {totales.getByMetodos(this.state.totalSales, this.selectedUserName).map((metodoTotal) => (
+            <li className="collection-item">
+              <p><b>{metodoTotal.metodo}: </b> <span>$ {metodoTotal.total.toFixed(2)}</span></p>
+            </li>
+          ))}
         </ul>
-      </div>}
+        {this.state.totalViaticos === undefined ? <Spinner/> :
+          <ul className="collection with-header col s11 m3">
+            <li className="collection-header bluish"><h5>Total</h5></li>
+            <li className="collection-item">
+              <p><b>Viaticos usados: </b> <span>$ {this.state.totalViaticos}</span></p>
+            </li>
+            <li className="collection-item">
+              <p><b>Efectivo Disponible: </b> <span>$ {this.state.totalEfectivoDisponible}</span></p>
+            </li>
+          </ul>}
+      </div> : <Spinner/> }
     </div>
   }
 }

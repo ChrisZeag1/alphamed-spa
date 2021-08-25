@@ -64,7 +64,7 @@ export default class Inventario extends React.Component {
     this.setState({ inventario: null });
     try {
       const inventario = await Api.get(Api.INVENTARIO_URL);
-      const dynamicFields = this.getDinamicFields(inventario);
+      let dynamicFields = this.getDinamicFields(inventario);
 
       const newItemFromFields = dynamicFields.reduce((acc, fieldName) => {
         acc[fieldName] = '';
@@ -74,6 +74,13 @@ export default class Inventario extends React.Component {
         ...this.newItemFrom,
         ...newItemFromFields,
       }
+
+      if(this.selectedUser.userName) {
+        dynamicFields = dynamicFields
+          .filter(fieldName => fieldName === this.selectedUser.userName)
+        dynamicFields.push(this.selectedUser.userName + '_HISTO');
+        await this.setState({ isEditMode: true });
+      }      
 
       this.setState({
         inventario: inventario.sort(this.sortArticulo),
@@ -92,16 +99,9 @@ export default class Inventario extends React.Component {
   }
 
   getDinamicFields(inventario) {
-    let dynamicFields = Object.keys(inventario[0])
-    .filter(key => !STATIC_FIELDS.includes(key))
-    .filter(fieldName => !fieldName.includes('_HISTO'));
-
-    if(this.selectedUser.userName) {
-      dynamicFields = dynamicFields
-        .filter(fieldName => fieldName === this.selectedUser.userName)
-      this.setState({ isEditMode: true });
-    }
-    return dynamicFields;
+    return Object.keys(inventario[0])
+      .filter(key => !STATIC_FIELDS.includes(key))
+      .filter(fieldName => !fieldName.includes('_HISTO'));
   }
 
   handleFormFieldChange(e, formFieldName) {
@@ -191,7 +191,9 @@ export default class Inventario extends React.Component {
         <tr>
           <th>Articulo</th>
           <th>precio</th>
-          {this.state.dynamicFields.map(field => <th key={field}>{ this.selectedUser.name ? 'Canitdad' : field}</th>)}
+          {this.state.dynamicFields.map(field =>
+            <th key={field}>{ this.selectedUser.name && !field.includes('_HISTO') ? 'Cantidad' : field.replace('_HISTO', ' Historial')}</th>
+          )}
           {this.state.isEditMode && <th>Acciones</th> }
         </tr>
       </thead>

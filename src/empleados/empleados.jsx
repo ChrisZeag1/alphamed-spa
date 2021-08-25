@@ -3,6 +3,7 @@ import * as Api from '../core/api';
 import './empleados.scss';
 import { Spinner } from '../core/components';
 import { Link } from 'react-router-dom';
+import { get as _get } from 'lodash';
 import { Modal, Select, Button } from 'react-materialize';
 
 export const Actions = (props) => (
@@ -88,7 +89,12 @@ export default class Empleados extends React.Component {
   
   async getUsers() {
     const users = await Api.get(Api.USERS_URL);
-    this.setState({ usuarios: users, isLoading: false, errorMessage: null });
+    const currentUser = _get(JSON.parse(localStorage.getItem('am-user')), 'userName');
+    this.setState({
+      usuarios: users.filter(u => u.userName !== currentUser),
+      isLoading: false,
+      errorMessage: null
+    });
   }
 
   async saveUserAndUpdate() {

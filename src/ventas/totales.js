@@ -1,20 +1,27 @@
 import { metodosPago } from '../core/components/sales-form/sales-form';
 
 export const totales =  {
-  getConIva: (totalSales) => (
-    totalSales.reduce((total, sale) => (
+  getConIva: (totalSales, username) => {
+    console.log('username >>>>>>', username);
+    return (!username ? totalSales :
+      totalSales.filter(sale => sale.userName === username))
+    .reduce((total, sale) => (
       total + sale.total
     ), 0)
-  ),
-  getSinIva: (totalSales) => (
-    totalSales.reduce((total, sale) => (
+  },
+  getSinIva: (totalSales, username) => (
+    (!username ? totalSales :
+      totalSales.filter(sale => sale.userName === username))    
+    .reduce((total, sale) => (
       total + sale.subTotal
     ), 0)
   ),
-  getByMetodos: function(totalSales) {
+  getByMetodos: function(totalSales, username) {
     return metodosPago.map((metodo) => ({
       metodo,
-      total: this.getConIva(totalSales.filter(sale => sale.metodoPago ===  metodo))
+      total: this.getConIva((!username ? totalSales :
+        totalSales.filter(sale => sale.userName === username))
+        .filter(sale => sale.metodoPago ===  metodo))
     }))
   }
 }
