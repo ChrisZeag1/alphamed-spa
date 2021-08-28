@@ -50,7 +50,7 @@ export default class Inventario extends React.Component {
       });
     } else {
       this.setState({
-        dynamicFields: this.getDinamicFields(this.state.inventario)
+        dynamicFields: this.getDynamicFields(this.state.inventario)
       });
     }
   }
@@ -64,7 +64,7 @@ export default class Inventario extends React.Component {
     this.setState({ inventario: null });
     try {
       const inventario = await Api.get(Api.INVENTARIO_URL);
-      let dynamicFields = this.getDinamicFields(inventario);
+      let dynamicFields = this.getDynamicFields(inventario);
 
       const newItemFromFields = dynamicFields.reduce((acc, fieldName) => {
         acc[fieldName] = '';
@@ -98,7 +98,7 @@ export default class Inventario extends React.Component {
     this.setState({ isModalOpen: true });
   }
 
-  getDinamicFields(inventario) {
+  getDynamicFields(inventario) {
     return Object.keys(inventario[0])
       .filter(key => !STATIC_FIELDS.includes(key))
       .filter(fieldName => !fieldName.includes('_HISTO'));
@@ -114,9 +114,11 @@ export default class Inventario extends React.Component {
   async handleChange(newValue, item, df) {
     const newItem = {
       [df]: newValue,
-      [`${df}_HISTO`]: newValue,
       articuloId: item.articuloId
     };
+    if(this.state.dynamicFields.includes(df)) {
+      newItem[`${df}_HISTO`] = newValue;
+    }
 
     const itemIndex = this.state.inventario.findIndex(value =>value.articuloId === item.articuloId);
     const newInventario = [
@@ -192,7 +194,7 @@ export default class Inventario extends React.Component {
           <th>Articulo</th>
           <th>precio</th>
           {this.state.dynamicFields.map(field =>
-            <th key={field}>{ this.selectedUser.name && !field.includes('_HISTO') ? 'Cantidad' : field.replace('_HISTO', ' Historial')}</th>
+            <th key={field}>{ this.selectedUser.name && !field.includes('_HISTO') ? 'Cantidad' : 'Inventario Original'}</th>
           )}
           {this.state.isEditMode && <th>Acciones</th> }
         </tr>
@@ -229,6 +231,21 @@ export default class Inventario extends React.Component {
     </table>
   }
 
+  message() {
+    return <React.Fragment>
+      {
+        this.state.errorMessage && <div  id="error-message" className="red accent-4 error-msg col s10 message">
+         {this.state.errorMessage}
+        </div>
+      }
+      {
+        this.state.successMessage && <div  id="sucess-message" className="teal accent-4 success-msg col s10 message">
+          {this.state.successMessage}
+        </div>
+      }
+    </React.Fragment>
+  }
+
   render() {
     const ButtonSave = () => <Button onClick={()=> this.saveChangeAndUpdate()}>
       {!this.state.isLoading ?
@@ -258,6 +275,7 @@ export default class Inventario extends React.Component {
        }
       </h1>
       {this.selectedUser.name && <h5>Viendo para:  <span className="user-name-filter">{ this.selectedUser.name }</span></h5>}
+       {this.message()}
        <Modal options={this.modalOptions}
               open={this.state.isModalOpen}
               actions={[

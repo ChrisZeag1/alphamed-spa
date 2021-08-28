@@ -30,7 +30,8 @@ export default class EmpleadoInventario extends React.Component {
       newInvetarioFiltrado = this.state.inventario
         .filter(item =>
           new RegExp(searchedValue.toLowerCase().trim(), 'g').test(item.articulo.toLowerCase().trim()
-        ));
+        ))
+        .sort(this.sortArticulo);
     }
     this.setState({ search: searchedValue, invetarioFiltrado: newInvetarioFiltrado });
   }
@@ -41,7 +42,7 @@ export default class EmpleadoInventario extends React.Component {
       const inventario = await Api.get(Api.INVENTARIO_URL + `/${this.userName}`);
       this.setState({
         inventario,
-        invetarioFiltrado: inventario,
+        invetarioFiltrado: inventario.sort(this.sortArticulo),
         isLoading: false,
         errorMessage: null
       });
@@ -67,6 +68,10 @@ export default class EmpleadoInventario extends React.Component {
         </tr>)}
       </tbody>
     </table>
+  }
+
+  sortArticulo(a, b) {
+    return a.articulo < b.articulo ? -1 : a.articulo === b.articulo ? 0 : 1;
   }
 
   render() {

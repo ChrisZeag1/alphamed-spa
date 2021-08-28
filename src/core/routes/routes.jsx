@@ -16,7 +16,7 @@ const NavRoutes = (props) => {
       </div>
     </Route>)}
     <Route path="*"
-      render={() => (<Redirect to={props.user.rol === 'admin' ? '/empleados' : '/ventas'}/>)}>
+      render={() => (<Redirect to={props.user.rol === 'admin' ? '/empleados' : '/venta'}/>)}>
     </Route>
   </Switch>
 };

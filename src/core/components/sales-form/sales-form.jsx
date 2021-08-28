@@ -49,7 +49,6 @@ export class SalesForm extends React.Component {
       ...this.props.availableInventario,
       produInventrio
     ].sort(this.sortArticulo);
-    debugger;
     this.props.updateState({
       availableInventario: newAvailableInventario,
       articulos: newArticulos,

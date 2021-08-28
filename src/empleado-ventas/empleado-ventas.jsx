@@ -40,9 +40,12 @@ export default class EmpleadoVentas extends React.Component {
     this.onSubmitForm = this.onSubmitForm.bind(this);
   }
 
-  componentDidMount() {
-    this.userName = _get(JSON.parse(localStorage.getItem('am-user')), 'userName');
-    this.getInvetorio();
+  async componentDidMount() {
+    // TODO: remove timeout, issue hapening after login only;
+    setTimeout(async() => {
+      this.userName = _get(JSON.parse(localStorage.getItem('am-user')), 'userName');
+      await this.getInvetorio();
+    }, 1000);
   }
 
   updateState(newStates) {

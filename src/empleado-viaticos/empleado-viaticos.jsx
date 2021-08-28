@@ -184,11 +184,6 @@ export default class EmpleadoViaticos extends React.Component {
             Total
           </label>
         </div>
-        <div className="col s10 venta-iva m4">
-          <Checkbox label="Tarjetas entregadas"
-            value={!!this.state.form.tarjetas}
-            onChange={() => this.setFormField({ tarjetas: !this.state.form.tarjetas })}/>
-        </div>
       </div>
     </form>
   }
@@ -241,7 +236,7 @@ export default class EmpleadoViaticos extends React.Component {
                 </div>
                 <div><b>lugar:</b>{viatico.lugar}</div>
                 <div><b>concepto:</b> {viatico.concepto}</div>
-                <div><b>tarjetas entregadas:</b> {viatico.tarjetas === 'true' ? 'Si' : 'No'}</div>
+                <div><b>total:</b> $ {viatico.total} MXN</div>
               </div>
             </CollapsibleItem>)}
           </Collapsible>

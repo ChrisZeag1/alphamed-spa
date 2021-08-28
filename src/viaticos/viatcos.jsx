@@ -48,7 +48,7 @@ export default class Viaticos extends React.Component {
     if (!startOfPeriod) {
       startOfPeriod = localStorage.getItem('startOfPeriod');
     }
-    this.defaultStartDate = moment(startOfPeriod).startOf('day').format('YYYY-MM-DD HH:mm:ss');
+    this.defaultStartDate = moment(startOfPeriod).format('YYYY-MM-DD HH:mm:ss');
     await this.resetDatesToDefault();
     await this.setState({
       showDatePickers: true,
@@ -59,7 +59,7 @@ export default class Viaticos extends React.Component {
     const queryDate = `?fromDate=${this.state.fromDate}&toDate=${this.state.toDate}`;
     const viaticos = await Api.get(`${Api.VIATICOS_URL}${queryDate}`);
     console.log('viaticos >>', viaticos);
-    this.setState({ viaticos: Object.values(viaticos) });
+    this.setState({ viaticos: Object.values(viaticos || {}) });
   }
 
   async onDoneDate() {
@@ -175,7 +175,7 @@ export default class Viaticos extends React.Component {
       <div className="row">
         {this.message()}
         <div className="viaticos col s12 m10">
-          { !this.state.viaticos ? <Spinner/> : <Collapsible popout accordion={false} className="main-header">
+          { !this.state.viaticos ? <Spinner/> : this.state.viaticos.length === 0 ? <h6>No hay viaticos</h6> : <Collapsible popout accordion={false} className="main-header">
             {this.state.viaticos.map((empViaticos, uIndex) => (
               <CollapsibleItem
                 key={empViaticos.userName + uIndex}
@@ -189,10 +189,6 @@ export default class Viaticos extends React.Component {
                         <div className="content">
                           <div><b>lugar:</b>{v.lugar}</div>
                           <div><b>concepto:</b> {v.concepto}</div>
-                          <div>
-                            <b>tarjetas entregadas:</b>
-                            {v.tarjetas === 'true' ? 'Si' : 'No'}
-                          </div>
                         </div>
                     </CollapsibleItem>)}
                   </Collapsible>

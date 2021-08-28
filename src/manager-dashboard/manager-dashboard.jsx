@@ -35,7 +35,7 @@ export default class ManagerDashboard extends React.Component {
     if (this.state.isLoadingRestart) {
       return;
     }
-    const startOf = moment().format(DATE_FORMAT);
+    const startOf = moment().subtract(3, 'minute').format(DATE_FORMAT + ' HH:mm:ss');
     localStorage.setItem('startOfPeriod', startOf);
     this.setState({
       isLoadingRestart: true,

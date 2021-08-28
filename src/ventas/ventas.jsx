@@ -21,7 +21,6 @@ export default class Ventas extends React.Component {
   selectedEndDate = '';
   defaultStartDate = moment('2020-11-29').startOf('day').format('YYYY-MM-DD HH:mm:ss');
   defaultEndDate = moment().endOf('day').format('YYYY-MM-DD HH:mm:ss');
-  hasInvetorio = false;
 
   constructor() {
     super();
@@ -97,10 +96,11 @@ export default class Ventas extends React.Component {
       startOfPeriod = await Api.get(`${Api.PERIODS_URL}/latest`);
     }catch(e) {
       console.error('unable to get period >', e);
-      startOfPeriod = moment().subtract(14, "days").format('YYYY-MM-DD HH:mm:ss')
+      startOfPeriod = moment().subtract(14, 'days').format('YYYY-MM-DD HH:mm:ss')
     }
-
-    this.defaultStartDate = moment(startOfPeriod).startOf('day').format('YYYY-MM-DD HH:mm:ss');
+    console.log('startOfPeriod >> ', startOfPeriod);
+    this.defaultStartDate = moment(startOfPeriod).format('YYYY-MM-DD HH:mm:ss');
+    console.log('defaultStartDate >> ', this.defaultStartDate);
     await this.resetDatesToDefault();
     await this.setState({
       showDatePickers: true,
@@ -272,10 +272,7 @@ export default class Ventas extends React.Component {
   }
 
   async toggleEditMode(userIndex, saleIndex) {
-    if (!this.hasInvetorio) {
-      await this.getAllInvetorio();
-      this.hasInvetorio = true;
-    }
+    await this.getAllInvetorio();
     const newSalesByUser = this.state.stateUsers.map((saleByUser, i) => ({
       ...saleByUser,
       sale: saleByUser.sale.map((sale, j) => ({
@@ -459,6 +456,7 @@ export default class Ventas extends React.Component {
           {this.message()}
           <div className="employees col s12 m10">
             {!this.state.stateUsers ? <Spinner/> : <Collapsible popout accordion={false} className="main-header">
+              {this.state.stateUsers.length === 0 && <h6>No hay ventas</h6>}
               {this.state.stateUsers.map((empSales, userIndex) => 
                 <CollapsibleItem expanded={true}
                   key={empSales.userName + userIndex}
@@ -499,7 +497,7 @@ export default class Ventas extends React.Component {
           </div>
       </div>
       <h3>Resumen</h3>
-      {this.state.totalSales && this.state.totalSales.length ? <div className="totals row">
+      {this.state.totalSales ? this.state.totalSales.length === 0 ? <h6>No hay ventas </h6> : <div className="totals row">
         <ul className="collection with-header col s11 m3">
           <li className="collection-header bluish"><h5>Total de Ventas</h5></li>
           <li className="collection-item">
