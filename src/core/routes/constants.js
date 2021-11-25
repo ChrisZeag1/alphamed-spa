@@ -19,6 +19,7 @@ export const EMPLOYEE_ROUTES = [
   { path:'/viaticos', render: <EmpleadoViaticos/>, icon: 'card_travel', name: 'Mis Viaticos' },
 ];
 
+
 export const MANAGER_ROUTES = [
   { path:'/dasboard', render: <ManagerDashbard/>, icon: 'home', name: 'Dasboard' },
   { path:'/empleados', render: <Empleados/>, icon: 'person', name: 'Empleados' },
