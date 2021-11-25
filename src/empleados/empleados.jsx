@@ -81,7 +81,7 @@ export default class Empleados extends React.Component {
     e.preventDefault();
     const hasAllValues = Object.values(this.state.form).every(Boolean);
     if(!hasAllValues) {
-      this.setState({ errorMessage: 'todos los campos son requeridos' })
+      this.setState({ errorMessage: 'Todos los campos son requeridos' })
       return;
     }
     this.saveUserAndUpdate();
