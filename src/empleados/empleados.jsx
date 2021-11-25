@@ -27,7 +27,7 @@ export const Actions = (props) => (
               onClick={() => props.delUpdate(props.user.userName)}>
         {!props.isLoading ? <span>
           <i className="small material-icons">delete</i>
-            Elimiar
+            Eliminar
         </span> :
         <span>
           loading ...
