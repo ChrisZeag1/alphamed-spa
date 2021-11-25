@@ -170,12 +170,12 @@ export default class Empleados extends React.Component {
   render() {
     return <div id="empleados">
       <h1>
-        Empleados
+        Vendedores
         <a className="btn-floating btn-large add-new-employee"
             onClick={()=> { this.openModal(); }}
             role="button">
           <i title="Agregar nuevo empleado"
-            aria-label="Agregar nuevo epleado"
+            aria-label="Agregar nuevo empleado"
             className="large material-icons">add</i>
         </a>
       </h1>
