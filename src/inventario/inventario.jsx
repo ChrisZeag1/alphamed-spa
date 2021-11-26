@@ -91,6 +91,7 @@ export default class Inventario extends React.Component {
 
     } catch(e) {
       this.setState({ errorMessage: e.message, isLoading: false })
+      console.error(e);
     }
   }
 
@@ -99,7 +100,7 @@ export default class Inventario extends React.Component {
   }
 
   getDynamicFields(inventario) {
-    return Object.keys(inventario[0])
+    return Object.keys(inventario[0] || {})
       .filter(key => !STATIC_FIELDS.includes(key))
       .filter(fieldName => !fieldName.includes('_HISTO'));
   }
@@ -154,7 +155,8 @@ export default class Inventario extends React.Component {
         await this.getInventario();
       }
     }catch(e) {
-      this.setState({ errorMessage: e.message, isLoading: false })
+      this.setState({ errorMessage: e.message, isLoading: false });
+      console.error(e);
     }
   }
 
@@ -167,6 +169,7 @@ export default class Inventario extends React.Component {
       }
     } catch(e) {
       this.setState({ errorMessage: e.message, isLoading: false })
+      console.error(e);
     }
   }
 
@@ -180,6 +183,7 @@ export default class Inventario extends React.Component {
       }
     } catch(e) {
       this.setState({ errorMessage: e.message, isLoading: false })
+      console.error(e);
     }
   }
 
@@ -188,6 +192,9 @@ export default class Inventario extends React.Component {
   }
 
   table() {
+    if(!this.state.inventario.length) {
+      return <h6>No hay inventario. Agrega nuevo inventario en el button agregar</h6>
+    }
     return <table className="row-hover row">
       <thead>
         <tr>
@@ -234,7 +241,7 @@ export default class Inventario extends React.Component {
   message() {
     return <React.Fragment>
       {
-        this.state.errorMessage && <div  id="error-message" className="red accent-4 error-msg col s10 message">
+        this.state.errorMessage && <div id="error-message" className="red accent-4 error-msg col s10 message">
          {this.state.errorMessage}
         </div>
       }

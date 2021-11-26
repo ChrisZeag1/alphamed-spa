@@ -62,7 +62,8 @@ export default class EmpleadoViaticos extends React.Component {
       const viaticos = await Api.get(`${Api.VIATICOS_URL}/${this.userName}${fromToQuery}`);
       this.setState({ viaticos: viaticos.sort(this.sortViatico) });
     } catch(e) {
-      this.setState({errorMessage: e.message, viaticos: [] });
+      console.error(e);
+      this.setState({errorMessage: 'hubo un problema al obtener tus viaticos. Intenta de nuevo.', viaticos: [] });
     }
   }
 
@@ -72,7 +73,10 @@ export default class EmpleadoViaticos extends React.Component {
       const defualtPastDate = moment().subtract(14, "days").format('YYYY-MM-DD HH:mm:ss')
       this.setState({ startOfPeriod:  startOfPeriod || defualtPastDate });
     } catch(e) {
-      this.setState({errorMessage: e.message });
+      const defualtPastDate = moment().subtract(14, "days").format('YYYY-MM-DD HH:mm:ss')
+      this.setState({ startOfPeriod: defualtPastDate });
+      console.error(e);
+      this.setState({errorMessage: `Hubo un problema al obtener la fecha de incio de la corrida. Intenta mas tarde.` });
     }
   }
 
@@ -88,7 +92,8 @@ export default class EmpleadoViaticos extends React.Component {
         this.setState({isDeleteLoading: false, viaticos: newViaticos });
       }
     } catch(e) {
-      this.setState({errorMessage: e.message, isDeleteLoading: false });
+      console.error(e);
+      this.setState({errorMessage: 'Hubo un problema al borra el Viatico.', isDeleteLoading: false });
     }
   }
 
@@ -115,7 +120,6 @@ export default class EmpleadoViaticos extends React.Component {
     e.preventDefault();
     const { form } = this.state;
     this.setState({ isSubmitLoading: true });
-    console.log('form >>', form);
     try {
       const result = await Api.post(`${Api.VIATICOS_URL}/${this.userName}`, form);
       if (result.viaticoId) {
@@ -128,7 +132,8 @@ export default class EmpleadoViaticos extends React.Component {
         });
       }
     } catch(e) {
-      this.setState({ isSubmitLoading: false, errorMessage: e.message,  successMessage: ''});
+      console.error(e);
+      this.setState({ isSubmitLoading: false, errorMessage: 'Hubo un problema al guardar el viatico, itenta mas tarde.',  successMessage: ''});
     }
   }
 

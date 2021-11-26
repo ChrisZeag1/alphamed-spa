@@ -47,11 +47,15 @@ export default class EmpleadoInventario extends React.Component {
         errorMessage: null
       });
     } catch(e) {
-      this.setState({ errorMessage: e.message, isLoading: false });
+      this.setState({ errorMessage: 'error al obtener el invetario', isLoading: false });
+      console.error(e);
     }
   }
 
   table() {
+    if (!this.state.invetarioFiltrado.length) {
+      return <h6>No hay inventario</h6>;
+    }
     return <table className="row-hover row">
       <thead>
         <tr>

@@ -107,8 +107,8 @@ export default class Empleados extends React.Component {
         this.setState({ modal: false, form: this.emptyFrom });
       }
     } catch(e) {
-      console.log('error >>', e);
-      this.setState({ errorMessage: e.message, isLoading: false })
+      console.error(e);
+      this.setState({ errorMessage: 'hubo un problema al guardar el usuario. Intenta mas tarde', isLoading: false });
     }
   }
 
@@ -118,8 +118,8 @@ export default class Empleados extends React.Component {
         this.setState({ usuarios: undefined, toogleAction: {} });
         this.getUsers();
     }).catch((e) => {
-      this.setState({ errorMessage: e.message, isLoading: false });
-      console.log('state >>', this.state);
+      this.setState({ errorMessage: 'Hubo un problema al borrar el usuario.', isLoading: false });
+      console.error(e);
     })
   }
 
@@ -128,6 +128,9 @@ export default class Empleados extends React.Component {
   }
 
   table() {
+    if (!this.state.usuarios.length) {
+      return <h6>No hay datos</h6>
+    }
     return <table className="row-hover">
       <thead>
         <tr>

@@ -58,7 +58,6 @@ export default class Viaticos extends React.Component {
   async refreshPage() {
     const queryDate = `?fromDate=${this.state.fromDate}&toDate=${this.state.toDate}`;
     const viaticos = await Api.get(`${Api.VIATICOS_URL}${queryDate}`);
-    console.log('viaticos >>', viaticos);
     this.setState({ viaticos: Object.values(viaticos || {}) });
   }
 

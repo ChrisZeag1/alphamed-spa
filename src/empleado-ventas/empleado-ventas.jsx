@@ -124,7 +124,8 @@ export default class EmpleadoVentas extends React.Component {
         }, 4000);
       }
     } catch(e) {
-      this.setState({ errorMessage: e.message, ventaLoading: false });
+      console.error(e);
+      this.setState({ errorMessage: 'Hubo un problema al guardar la venta. Intenta de nuevo.', ventaLoading: false });
       window.scroll({ top: 0,  behavior: 'smooth' });
     }
   }
@@ -139,7 +140,7 @@ export default class EmpleadoVentas extends React.Component {
         errorMessage: ''
       });
     } catch(e) {
-      this.setState({ errorMessage: e.message });
+      this.setState({ errorMessage: 'Hubo un problema al obtener el invetario. Itenta de nuevo.' });
     }
   }
 

@@ -2,7 +2,6 @@ import { metodosPago } from '../core/components/sales-form/sales-form';
 
 export const totales =  {
   getConIva: (totalSales, username) => {
-    console.log('username >>>>>>', username);
     return (!username ? totalSales :
       totalSales.filter(sale => sale.userName === username))
     .reduce((total, sale) => (

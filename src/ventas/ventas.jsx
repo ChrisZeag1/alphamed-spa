@@ -64,7 +64,6 @@ export default class Ventas extends React.Component {
     document.querySelectorAll('.datepicker-done').forEach((el) => {
       el.addEventListener('click', this.onDoneDate.bind(this), null);
     });
-    console.log('state >>> ', this.state);
   }
 
   componentWillUnmount() {
@@ -94,13 +93,14 @@ export default class Ventas extends React.Component {
     let startOfPeriod;
     try {
       startOfPeriod = await Api.get(`${Api.PERIODS_URL}/latest`);
+      if (!moment(startOfPeriod).isValid()) {
+        startOfPeriod = moment().subtract(14, 'days').format('YYYY-MM-DD HH:mm:ss');
+      }
     }catch(e) {
-      console.error('unable to get period >', e);
-      startOfPeriod = moment().subtract(14, 'days').format('YYYY-MM-DD HH:mm:ss')
+      console.error(e);
+      startOfPeriod = moment().subtract(14, 'days').format('YYYY-MM-DD HH:mm:ss');
     }
-    console.log('startOfPeriod >> ', startOfPeriod);
     this.defaultStartDate = moment(startOfPeriod).format('YYYY-MM-DD HH:mm:ss');
-    console.log('defaultStartDate >> ', this.defaultStartDate);
     await this.resetDatesToDefault();
     await this.setState({
       showDatePickers: true,
@@ -171,8 +171,8 @@ export default class Ventas extends React.Component {
           .find(m => m.metodo === 'Efectivo').total - totalViaticos;
       await this.setState({ totalViaticos, totalEfectivoDisponible });
     } catch(e) {
+      this.displayMessage({ errorMessage: 'Hubo un problema al obtener los viaticos.' });
       console.error(e);
-      this.displayMessage({ errorMessage: e.message });
     }
   }
   
@@ -201,7 +201,8 @@ export default class Ventas extends React.Component {
       }));
       await this.setState({ stateUsers: userStateWithInvetory });
     } catch(e) {
-      this.displayMessage({ errorMessage: e.message});
+      this.displayMessage({ errorMessage: 'Hubo un problema al obtener el inventario.'});
+      console.error(e);
     }
   }
 
@@ -220,7 +221,8 @@ export default class Ventas extends React.Component {
         this.displayMessage({ errorMessage: '', successMessage: 'Venta Borrada', isLoadingDelete: false });
       }
     }catch(e) {
-      this.displayMessage({ errorMessage: e.message, isLoadingDelete: false });
+      console.error(e);
+      this.displayMessage({ errorMessage: 'Hubo un problema al borrar la venta', isLoadingDelete: false });
     }
   }
 
@@ -257,6 +259,7 @@ export default class Ventas extends React.Component {
         this.displayMessage({ successMessage: `la venta con id ${ventaId} de ${userName} ha sido editada`});
       }
     } catch(e) {
+      console.error(e);
       this.displayMessage({ errorMessage: e.message });
     }
   }

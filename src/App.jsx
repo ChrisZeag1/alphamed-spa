@@ -53,7 +53,7 @@ export  class App extends React.Component {
         });
       }
     } catch(e) {
-      console.error('error > ', e);
+      console.error(e);
       this.setState({
         errorMessage: 'No se ha poido autenticar, intenta mas tarde',
         loading: false

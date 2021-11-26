@@ -40,6 +40,7 @@ export default class MisVentas extends React.Component {
     const startOfWeek = moment(current).startOf('day').startOf('week').format('YYYY-MM-DD HH:mm:ss');
     const endOfWeek = moment(current).endOf('day').endOf('week').format('YYYY-MM-DD HH:mm:ss');
     const queryWeek = `fromDate=${startOfWeek}&toDate=${endOfWeek}`;
+
     try {
       const sales = await Api.get(`${Api.VENTAS_URL}/${this.userName}?${queryWeek}`);
       const mySalesByDay = sales
@@ -66,10 +67,9 @@ export default class MisVentas extends React.Component {
           return acc;
         }, {});
       await this.setState({ mySalesByDay });
-      console.log('state >>> ', this.state.mySalesByDay);
     } catch(e) {
+      this.setState({ errorMessage: 'Hubo un problema al obtener tus ventas.' });
       console.error(e);
-      this.setState({ errorMessage: e.message });
     }
   }
 
@@ -81,7 +81,8 @@ export default class MisVentas extends React.Component {
         errorMessage: ''
       });
     } catch(e) {
-      this.setState({ errorMessage: e.message });
+      this.setState({ errorMessage: 'Hubo un problema al obtener tu invetario.' });
+      console.error(e);
     }
   }
 

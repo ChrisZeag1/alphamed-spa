@@ -16,7 +16,7 @@ export async function deleteReq(url, heads={}) {
   const headers =  {
     ...heads,
     'Content-Type': 'application/json',
-    uname: 'fer_0310'
+    uname: getUName()
   };
   return resolve(axios.delete(url, { headers }))
 }
@@ -25,9 +25,14 @@ export async function put(url, body, heads={}) {
   const headers =  {
     ...heads,
     'Content-Type': 'application/json',
-    uname: 'fer_0310'
+    uname: getUName()
   };
   return resolve(axios.put(url, body, { headers }))
+}
+
+function getUName() {
+  const userData = JSON.parse(localStorage.getItem('am-user') || '{}');
+  return userData.userName;
 }
 
 function objToUrl(body) {
