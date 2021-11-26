@@ -27,7 +27,7 @@ export const Actions = (props) => (
               onClick={() => props.delUpdate(props.user.userName)}>
         {!props.isLoading ? <span>
           <i className="small material-icons">delete</i>
-            Elimiar
+            Eliminar
         </span> :
         <span>
           loading ...
@@ -81,7 +81,7 @@ export default class Empleados extends React.Component {
     e.preventDefault();
     const hasAllValues = Object.values(this.state.form).every(Boolean);
     if(!hasAllValues) {
-      this.setState({ errorMessage: 'todos los campos son requeridos' })
+      this.setState({ errorMessage: 'Todos los campos son requeridos' })
       return;
     }
     this.saveUserAndUpdate();
@@ -173,12 +173,12 @@ export default class Empleados extends React.Component {
   render() {
     return <div id="empleados">
       <h1>
-        Empleados
+        Vendedores
         <a className="btn-floating btn-large add-new-employee"
             onClick={()=> { this.openModal(); }}
             role="button">
           <i title="Agregar nuevo empleado"
-            aria-label="Agregar nuevo epleado"
+            aria-label="Agregar nuevo empleado"
             className="large material-icons">add</i>
         </a>
       </h1>
