@@ -150,7 +150,7 @@ export default class EmpleadoViaticos extends React.Component {
   getForm() {
     return <form className="viaticos-form" onSubmit={(e) => this.handleSubmit(e) }>
       <div className="row">
-        <h3> Nuevo Viatco</h3>
+        <h3> Nuevo cargo</h3>
       </div>
       <div className="row">
         <div className="col s12 m6" id="fecha-viatico">
@@ -206,14 +206,14 @@ export default class EmpleadoViaticos extends React.Component {
               actions={[
                 <Button onClick={(e) => this.handleSubmit(e)} disabled={this.isLoading}  node="button" waves="green">
                   {!this.isLoading ? <span>Guardar</span> :
-                    this.isLoading && <span>Loading...</span>}
+                    this.isLoading && <span>Cargando...</span>}
                 </Button>,
                 <Button flat modal="close" node="button" waves="green">Cerrar</Button>
               ]}>
         {this.getForm()}
       </Modal>
       <div className="header">
-        <h1>Mis Vitacos</h1>
+        <h1>Mis viaticos</h1>
         <div className="row text-centered">
         <button className="btn waves-effect waves-light"
               onClick={() => this.setState({ isModalOpen: true }) }
@@ -234,9 +234,9 @@ export default class EmpleadoViaticos extends React.Component {
                      aria-label="eliminar viatico">
                   <i title="eliminar viatico" className="small material-icons">clear</i>
                 </div>
-                <div><b>lugar:</b>{viatico.lugar}</div>
-                <div><b>concepto:</b> {viatico.concepto}</div>
-                <div><b>total:</b> $ {viatico.total} MXN</div>
+                <div><b>Lugar:</b>{viatico.lugar}</div>
+                <div><b>Concepto:</b> {viatico.concepto}</div>
+                <div><b>Total:</b> $ {viatico.total} MXN</div>
               </div>
             </CollapsibleItem>)}
           </Collapsible>

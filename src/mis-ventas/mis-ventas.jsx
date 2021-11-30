@@ -131,7 +131,7 @@ export default class MisVentas extends React.Component {
         <div className="sumary-el main">{moment(sale.fechaVenta).format('ll')}</div>
       </div>
       <div className="sale-summary-info end">
-        <div className="sumary-el">{sale.articulos.length} U</div>
+        <div className="sumary-el">{sale.articulos.length} Pzas</div>
         <div className="sumary-el money">$ {sale.subTotal} MXN</div>
       </div>
     </div>

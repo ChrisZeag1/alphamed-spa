@@ -168,8 +168,8 @@ export class SalesForm extends React.Component {
       {articulo.articuloId && !this.props.form.isReadMode && <div role="button"
           onClick={()=> this.deleteProducto(i)}
           className="producto-delete"
-          aria-label="eliminar producto">
-        <i title="eliminar producto" className="small material-icons">clear</i>
+          aria-label="Eliminar producto">
+        <i title="Eliminar producto" className="small material-icons">clear</i>
       </div>}
       <div className="col s11">
       {this.props.inventario ? <AlphaSelect
@@ -223,7 +223,7 @@ export class SalesForm extends React.Component {
             onChange={(e) => this.props.setFormField({ nombreDoctor: e.target.value })}
             type="text"/>
           <label className={this.props.form.nombreDoctor ? 'active' : ''} htmlFor={`doctors-name-${this.formId}`}>
-            Nombre del Doctor
+            Nombre del doctor
           </label>
         </div>
       </div>
@@ -249,7 +249,7 @@ export class SalesForm extends React.Component {
                 onChange={(e) => this.props.setFormField({ facturaEmail: e.target.value })}
                 type="email"/>
               <label className={this.props.form.facturaEmail ? 'active' : ''} htmlFor={`factura-email-${this.formId}`}>
-                Correo Electrónico
+                Correo electrónico
               </label>
             </div>
             <div className="input-field">
@@ -295,7 +295,7 @@ export class SalesForm extends React.Component {
           </div>
           <div className="input-field col s12">
             <input value={`$ ${this.props.subTotal && this.props.subTotal.toFixed(2)}`} type="text" disabled/>
-            <label className="active">sub total</label>
+            <label className="active">Sub total</label>
           </div>
           <div className="input-field col s12">
             <input value={`$ ${this.props.total.toFixed(2)}`} type="text" disabled/>

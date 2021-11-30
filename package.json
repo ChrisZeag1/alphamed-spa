@@ -25,6 +25,7 @@
     "start": "react-scripts start",
     "build": "GENERATE_SOURCEMAP=false react-scripts build",
     "build:prod": "REACT_APP_SECRET_ENV=prod GENERATE_SOURCEMAP=false react-scripts build",
+    "build:win:prod": "set \"REACT_APP_SECRET_ENV=prod\" && set \"GENERATE_SOURCEMAP=false\" && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

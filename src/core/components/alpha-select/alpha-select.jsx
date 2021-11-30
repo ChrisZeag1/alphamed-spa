@@ -36,7 +36,7 @@ export const AlphaSelect = (props) => {
   const Item = (props) => <li onClick={() => onSelected(props.item)}
     className={`collection-item two-blocks ${applySelectedClass(props.item)}`}>
     <span className="item-name">{props.item.articulo}</span>
-    {props.item.cantidad && <span className="item-units">{props.item.cantidad} U</span>}
+    {props.item.cantidad && <span className="item-units">{props.item.cantidad} Pzas</span>}
   </li>;
 
   const availableItems = (items) => {
@@ -44,7 +44,7 @@ export const AlphaSelect = (props) => {
       const reg = new RegExp(searchValue, 'g');
       const filtered = items.filter(item => reg.test(item.articulo));
       return filtered.length ?
-      filtered : [{ articulo: 'sin reslutados', articuloId: 'NA' }];
+      filtered : [{ articulo: 'sin resultados', articuloId: 'NA' }];
     } else {
       return items;
     }
@@ -59,7 +59,7 @@ export const AlphaSelect = (props) => {
     </div>
 
     {!props.disabled &&<Modal open={openModal} options={modalOptions} root={document.body}>
-      <p>Selectiona un Articulo</p>
+      <p>Selecciona un artículo</p>
       <div className="input-field col s4">
         <input id="search-invetory"
           value={searchValue}
@@ -73,7 +73,7 @@ export const AlphaSelect = (props) => {
           <li  className="collection-item two-blocks">No hay inventario</li>
         }
         {
-          !props.availableItems ? <li className="collection-item">Loading...</li> :
+          !props.availableItems ? <li className="collection-item">Cargando...</li> :
             availableItems(props.availableItems).map(item => <Item item={item}
               key={item.articuloId}>
             </Item>)

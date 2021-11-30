@@ -232,10 +232,10 @@ export default class Ventas extends React.Component {
       errors.push('No hay articulos para vender');
     }
     if (this.state.updatingSaleForm.articulos.some(a => !a.cantidad)) {
-      errors.push('hay articulos sin cantidad');
+      errors.push('Existen articulos sin cantidad asignada');
     }
     if (!this.state.updatingSaleForm.form.metodoPago) {
-      errors.push('falta agregar el metodo de pago');
+      errors.push('Falta agregar el método de pago');
     }
     if (errors.length) {
       this.displayMessage({ errorMessage: errors.join(',  ')});
@@ -254,7 +254,7 @@ export default class Ventas extends React.Component {
       const response = await Api.post(`${Api.VENTAS_URL}/${userName}/${ventaId}`, toBeSaved);
       if (response && response.ventaId) {
         this.refreshPage();
-        this.displayMessage({ successMessage: `la venta con id ${ventaId} de ${userName} ha sido editada`});
+        this.displayMessage({ successMessage: `La venta con id ${ventaId} de ${userName} ha sido editada`});
       }
     } catch(e) {
       this.displayMessage({ errorMessage: e.message });
@@ -429,7 +429,7 @@ export default class Ventas extends React.Component {
         {!sale.form.isReadMode && <div className="sumary-el s-w editing">Editando</div>}
       </div>
       <div className="to-right">
-        <div className="sumary-el s-w">{sale.articulos.length} U</div>
+        <div className="sumary-el s-w">{sale.articulos.length} Pzas</div>
           <div className="sumary-el s-w">IVA: {sale.IVA ? 'SI': 'NO'}</div>
         <div className="sumary-el ll-w">$ {sale.subTotal.toFixed(2)} MXN</div>
       </div>
@@ -508,7 +508,7 @@ export default class Ventas extends React.Component {
           </li>
         </ul>
         <ul className="collection with-header col s11 m3">
-          <li className="collection-header bluish"><h5>Total por metodo de pago</h5></li>
+          <li className="collection-header bluish"><h5>Total por método de pago</h5></li>
           {totales.getByMetodos(this.state.totalSales, this.selectedUserName).map((metodoTotal) => (
             <li className="collection-item">
               <p><b>{metodoTotal.metodo}: </b> <span>$ {metodoTotal.total.toFixed(2)}</span></p>
@@ -519,7 +519,7 @@ export default class Ventas extends React.Component {
           <ul className="collection with-header col s11 m3">
             <li className="collection-header bluish"><h5>Total</h5></li>
             <li className="collection-item">
-              <p><b>Viaticos usados: </b> <span>$ {this.state.totalViaticos}</span></p>
+              <p><b>Viáticos usados: </b> <span>$ {this.state.totalViaticos}</span></p>
             </li>
             <li className="collection-item">
               <p><b>Efectivo Disponible: </b> <span>$ {this.state.totalEfectivoDisponible}</span></p>
