@@ -11,7 +11,7 @@ export const Actions = (props) => (
     <li className="collection-item"  key="invetario">
       <Link to={`/invetario?userName=${props.user.userName}&name=${props.user.nombre}`}>
         <i className="small material-icons">library_books</i>
-        <span>Invetario</span>
+        <span>Inventario</span>
       </Link>
     </li>
     <li className="collection-item" key="ventas">
@@ -30,7 +30,7 @@ export const Actions = (props) => (
             Eliminar
         </span> :
         <span>
-          loading ...
+          Cargando...
         </span>}
       </Button>
     </li>
@@ -141,13 +141,13 @@ export default class Empleados extends React.Component {
             UserName
           </th>
           <th>
-            Role
+            Rol
           </th>
           <th>
             Ubicacion
           </th>
           <th>
-            Actiones
+            Acciones
           </th>
         </tr>
       </thead>
@@ -187,13 +187,13 @@ export default class Empleados extends React.Component {
           actions={[
             <Button onClick={this.handleSubmit} disabled={this.isLoading}  node="button" waves="green">
               {!this.isLoading ? <span>Guardar</span> :
-                this.isLoading && <span>Loading...</span>}
+                this.isLoading && <span>Cargando...</span>}
             </Button>,
             <Button flat modal="close" node="button" waves="green">Cerrar</Button>
           ]}
           fixedFooter
           options={this.modalOptions}>
-        <h3> Agregue un nuevo Empleado</h3>
+        <h3> Agregue un nuevo empleado</h3>
         {this.state.errorMessage && <div className="red accent-4 error-msg">{this.state.errorMessage}</div>}
         <form onSubmit={this.handleSubmit}>
           <div className="row">
@@ -213,7 +213,7 @@ export default class Empleados extends React.Component {
             </div>
             <Select id="employee-rol"  value={this.state.form.rol} onChange={(e) => this.handleChange(e, 'rol') }>
               <option disabled value="">
-              Selectiona el Rol
+              Selecciona el rol
               </option>              
               <option value="user">
                 User

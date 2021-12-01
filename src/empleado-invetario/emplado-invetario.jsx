@@ -59,8 +59,8 @@ export default class EmpleadoInventario extends React.Component {
     return <table className="row-hover row">
       <thead>
         <tr>
-          <th>Articulo</th>
-          <th>precio</th>
+          <th>Artículo</th>
+          <th>Precio</th>
           <th>Cantidad</th>
         </tr>
       </thead>

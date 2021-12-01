@@ -66,14 +66,14 @@ export default class ManagerDashboard extends React.Component {
                   key="1" onClick={(e) => { this.reStartPeriod(e) }}>
                 { 
                   !this.state.isLoadingRestart ?
-                    <span>Nueva Corrida</span> :
+                    <span>Nueva ruta</span> :
                     <span>Cargando...</span>
                 }
               </a>
             ]}
             horizontal>
              { this.state.currentPeriod.startOf ? <div>
-              Perido del 
+              Periodo del 
               <span> {moment(this.state.currentPeriod.startOf).format('ll')}</span>  al
                <span> {moment().format('ll')} </span>
               </div>: <Spinner/>}            

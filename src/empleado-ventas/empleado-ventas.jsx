@@ -80,10 +80,10 @@ export default class EmpleadoVentas extends React.Component {
     const articulos = this.state.articulos.filter(a => a.articuloId);
     const errors = [];
     if (!articulos.length) {
-      errors.push('No hay articulos para vender');
+      errors.push('No hay artículos para vender');
     }
     if(!this.state.form.metodoPago) {
-      errors.push('falta agregar el metodo de pago');
+      errors.push('Falta agregar el método de pago');
     }
     if(errors.length) {
       this.setState({ errorMessage: errors.join(',  ')});
@@ -147,7 +147,7 @@ export default class EmpleadoVentas extends React.Component {
   render() {
     return <div id="empleado-ventas">
       <div className="title">
-        <h2>venta</h2>
+        <h2>Venta</h2>
         <h5 className="fecha-venta">{this.state.fechaVenta.format('DD/MM/YYYY')}</h5>
       </div>
       {this.state.errorMessage &&
