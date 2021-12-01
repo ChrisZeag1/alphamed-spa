@@ -7,7 +7,7 @@ export const NavBar = (props) => {
   return <nav>
     <ul>
       <li id="logo-container">
-        <a href="http://www.alfa-med.com.mx/" target="_blank">
+        <a href="http://www.alfamedonline.com/" target="_blank">
           <div className="img-circle">
             <img src="./alphamed-logo.png" alt="alfa-med logo"/>
           </div>

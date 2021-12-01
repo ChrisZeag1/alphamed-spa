@@ -231,7 +231,7 @@ export default class Inventario extends React.Component {
           {this.state.isEditMode && <td><Button
               className="red lighten-2"
               onClick={() => this.deleteItemAndUpdate(item)}
-              icon={<i className="small material-icons">delete</i>}>
+              icon={<i className="small material-icons">Borrar</i>}>
           </Button></td>}
         </tr>)}
       </tbody>
@@ -257,7 +257,7 @@ export default class Inventario extends React.Component {
     const ButtonSave = () => <Button onClick={()=> this.saveChangeAndUpdate()}>
       {!this.state.isLoading ?
         <span>Guardar</span> :
-        <span>Loading...</span>}
+        <span>Cargando...</span>}
     </Button>;
 
     return <div id="inventario">
@@ -267,8 +267,8 @@ export default class Inventario extends React.Component {
           <a className="btn-floating btn-large"
               onClick={() => this.openModal()}
               role="button">
-            <i title="Agregar nuevo articulo"
-              aria-label="Agregar nuevo articulo"
+            <i title="Agregar nuevo artículo"
+              aria-label="Agregar nuevo artículo"
               className="large material-icons">add</i>
           </a>
           <a className="btn-floating btn-large"
@@ -288,12 +288,12 @@ export default class Inventario extends React.Component {
               actions={[
                 <Button onClick={this.handleSubmitNewItem} disabled={this.isLoading}  node="button" waves="green">
                   {!this.isLoading ? <span>Guardar</span> :
-                    this.isLoading && <span>Loading...</span>}
+                    this.isLoading && <span>Cargando...</span>}
                 </Button>,
                 <Button flat modal="close" node="button" waves="green">Cerrar</Button>
               ]}
               fixedFooter>
-          <h3>Agregar Nuevo Articulo </h3>
+          <h3>Agregar un nuevo artículo </h3>
           <form onSubmit={this.handleSubmitNewItem}>
             <div className="row">
               {Object.keys(this.newItemFrom).map(fieldName => <div key={fieldName} className="input-field col s12 m6">
