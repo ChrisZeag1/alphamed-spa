@@ -2,6 +2,10 @@
  display: flex;
  justify-content: space-between;
  align-items: center;
+ 
+ .period-select {
+   cursor: pointer;
+ }
 
  .dates {
   display: inherit;

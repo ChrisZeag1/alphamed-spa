@@ -1,9 +1,8 @@
 import React from 'react';
 import * as moment from 'moment';
 import {get as _get } from 'lodash';
-import { Collapsible, CollapsibleItem, Button, DatePicker } from 'react-materialize';
-import { Spinner, SalesForm } from '../core/components';
-import { datePickerOptions } from '../core/components/date-picker/date-picker-options';
+import { Collapsible, CollapsibleItem, Button } from 'react-materialize';
+import { Spinner, SalesForm, PeriodsSector, PeriodsModel } from '../core/components';
 import { totales } from './totales';
 import * as Api from '../core/api';
 import './ventas.scss';
@@ -15,12 +14,6 @@ export default class Ventas extends React.Component {
     descuento: '',
     total: 0
   };
-  datePickerStartOptions = {};
-  datePickerEndOptions = {};
-  selectedStartDate = '';
-  selectedEndDate = '';
-  defaultStartDate = moment('2020-11-29').startOf('day').format('YYYY-MM-DD HH:mm:ss');
-  defaultEndDate = moment().endOf('day').format('YYYY-MM-DD HH:mm:ss');
 
   constructor() {
     super();
@@ -28,26 +21,14 @@ export default class Ventas extends React.Component {
       totalSales: null,
       stateUsers: null,
       userNames: [],
-      fromDate: this.defaultStartDate,
-      toDate: this.defaultEndDate,
-      showDatePickers: true,
-      showResetFilter: false,
+      currentPeriod: null,
+      Periods: [],
       updatingSaleForm: null,
       errorMessage: '',
       successMessage: '',
       isLoadingDelete: false,
       totalViaticos: 0,
       totalEfectivoDisponible: 0
-    };
-    this.datePickerStartOptions = {
-      ...datePickerOptions,
-      defaultDate: new Date(this.state.fromDate),
-      onSelect: (e) => this.onStartDateChange(e)
-    };
-    this.datePickerEndOptions = {
-      ...datePickerOptions,
-      defaultDate: new Date(this.state.toDate),
-      onSelect: (e) => this.onEndDateChange(e)
     };
   }
 
@@ -59,29 +40,8 @@ export default class Ventas extends React.Component {
 
   async componentDidMount() {
     this.user = JSON.parse(localStorage.getItem('am-user'));
-    await this.getPeriod();
+    await this.getPeriods();
     await this.refreshPage();
-    document.querySelectorAll('.datepicker-done').forEach((el) => {
-      el.addEventListener('click', this.onDoneDate.bind(this), null);
-    });
-  }
-
-  componentWillUnmount() {
-    document.querySelectorAll('.datepicker-done').forEach((el) => {
-      el.removeEventListener('click', this.onDoneDate.bind(this), null);
-    });
-  }
-
-  async onDoneDate() {
-    if(this.selectedStartDate) {
-      await this.setState({ fromDate: this.selectedStartDate, showResetFilter: true });
-      this.selectedStartDate = '';
-      this.refreshPage();
-    } else if (this.selectedEndDate) {
-      await this.setState({ toDate: this.selectedEndDate, showResetFilter: true });
-      this.selectedEndDate = '';
-      this.refreshPage();
-    }
   }
 
   async refreshPage() {
@@ -89,28 +49,26 @@ export default class Ventas extends React.Component {
     await this.getSales();
   }
 
-  async getPeriod() {
-    let startOfPeriod;
+  async getPeriods() {
     try {
-      startOfPeriod = await Api.get(`${Api.PERIODS_URL}/latest`);
-      if (!moment(startOfPeriod).isValid()) {
-        startOfPeriod = moment().subtract(14, 'days').format('YYYY-MM-DD HH:mm:ss');
-      }
-    }catch(e) {
-      console.error(e);
-      startOfPeriod = moment().subtract(14, 'days').format('YYYY-MM-DD HH:mm:ss');
+      const periods = await Api.get(`${Api.PERIODS_URL}`);
+      const dateRanges = new PeriodsModel(periods);
+      await this.setState({ periods: dateRanges, currentPeriod: dateRanges[0] });
+    } catch(e) {
+      console.error('hubo un error al obtener las corridas > ', e);
+      this.displayMessage({ errorMessage: 'hubo un error al obtener las corridas'});
     }
-    this.defaultStartDate = moment(startOfPeriod).format('YYYY-MM-DD HH:mm:ss');
-    await this.resetDatesToDefault();
-    await this.setState({
-      showDatePickers: true,
-    });
+  }
+
+  async setCurrentPeriodAndGetNewSales(currentPeriod) {
+    await this.setState({ currentPeriod });
+    this.refreshPage();
   }
 
   async getSales() {
     try {
       this.selectedUserName = this.getQueryParam('userName');
-      const queryDate = `?fromDate=${this.state.fromDate}&toDate=${this.state.toDate}`;
+      const queryDate = `?fromDate=${this.state.currentPeriod.startDate}&toDate=${this.state.currentPeriod.endDate}`;
       const sales = await Api.get(`${Api.VENTAS_URL}${queryDate}`);
       let stateUsers = sales || [];
       if (this.selectedUserName) {
@@ -362,51 +320,15 @@ export default class Ventas extends React.Component {
     }, 6000);
   }
 
-  onStartDateChange(date) {
-    this.selectedStartDate = moment(date).startOf('day').format('YYYY-MM-DD HH:mm:ss');
-  }
-
-  onEndDateChange(date) {
-    this.selectedEndDate = moment(date).endOf('day').format('YYYY-MM-DD HH:mm:ss');
-  }
-
-  async resetDatesToDefault(e) {
-    if (e) {
-      e.preventDefault();
-    }
-    this.datePickerStartOptions = {
-      ...this.datePickerStartOptions,
-      defaultDate: new Date(this.defaultStartDate),
-    };
-    this.datePickerEndOptions = {
-      ...this.datePickerEndOptions,
-      defaultDate: new Date(this.defaultEndDate),
-    };
-    await this.setState({
-      fromDate: this.defaultStartDate,
-      toDate: this.defaultEndDate,
-      showResetFilter: false,
-      showDatePickers: false,
-    });
-  }
-
-  async resetDatesToDefaultAndRefresh() {
-    await this.resetDatesToDefault();
-    await this.refreshPage();
-    await this.setState({
-      showDatePickers: true,
-    });
-  }
-
   message() {
     return <React.Fragment>
       {
-        this.state.errorMessage && <div  id="error-message" className="red accent-4 error-msg col s10 message">
+        this.state.errorMessage && <div id="error-message" className="red accent-4 error-msg col s10 message">
          {this.state.errorMessage}
         </div>
       }
       {
-        this.state.successMessage && <div  id="sucess-message" className="teal accent-4 success-msg col s10 message">
+        this.state.successMessage && <div id="sucess-message" className="teal accent-4 success-msg col s10 message">
           {this.state.successMessage}
         </div>
       }
@@ -444,15 +366,10 @@ export default class Ventas extends React.Component {
       <div className="ventas__header">
         <h1>Ventas</h1>
         <div className="filter-headers">
-          <h5>Viendo desde </h5>
-          {this.state.showDatePickers && <DatePicker options={this.datePickerStartOptions}/>}
-          a 
-          {this.state.showDatePickers && <DatePicker options={this.datePickerEndOptions}/>}
-          {this.state.showResetFilter &&
-              <a className="reset-btn" onClick={(e) => this.resetDatesToDefaultAndRefresh(e) }>
-                Clear
-              </a>
-          }
+        {this.state.periods && this.state.periods.length && <PeriodsSector
+            periods={this.state.periods}
+            setCurrentPeriod={(currentPeriod) => this.setCurrentPeriodAndGetNewSales(currentPeriod) }>
+          </PeriodsSector>}
         </div>
       </div>
       <div className="row">

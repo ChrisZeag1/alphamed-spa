@@ -2,119 +2,55 @@ import React from 'react';
 import * as moment from 'moment';
 import {get as _get } from 'lodash';
 import * as Api from '../core/api';
-import { Collapsible, CollapsibleItem, Button, DatePicker } from 'react-materialize';
-import { datePickerOptions } from '../core/components/date-picker/date-picker-options';
-import { Spinner } from '../core/components';
+import { Collapsible, CollapsibleItem } from 'react-materialize';
+import { Spinner, PeriodsSector, PeriodsModel } from '../core/components';
 import './viaticos.scss';
 
 export default class Viaticos extends React.Component {
-  datePickerStartOptions = {};
-  datePickerEndOptions = {};
-  selectedStartDate = '';
-  selectedEndDate = '';
-  defaultStartDate = moment('2020-11-29').startOf('day').format('YYYY-MM-DD HH:mm:ss');
-  defaultEndDate = moment().endOf('day').format('YYYY-MM-DD HH:mm:ss');
 
   constructor() {
     super();
     this.state = {
-      showDatePickers: true,
-      fromDate: this.defaultStartDate,
-      toDate: this.defaultEndDate,
-      viaticos: undefined
-    };
-    this.datePickerStartOptions = {
-      ...datePickerOptions,
-      defaultDate: new Date(this.state.fromDate),
-      onSelect: (e) => this.onStartDateChange(e)
-    };
-    this.datePickerEndOptions = {
-      ...datePickerOptions,
-      defaultDate: new Date(this.state.toDate),
-      onSelect: (e) => this.onEndDateChange(e)
+      currentPeriod: null,
+      periods: [],
+      viaticos: undefined,
+      errorMessage: undefined,
     };
   }
   async componentDidMount() {
     this.user = JSON.parse(localStorage.getItem('am-user'));
-    await this.getPeriod();
+    await this.getPeriods();
     await this.refreshPage();
-    document.querySelectorAll('.datepicker-done').forEach((el) => {
-      el.addEventListener('click', this.onDoneDate.bind(this), null);
-    });
   }
 
-  async getPeriod() {
-    let startOfPeriod = await Api.get(`${Api.PERIODS_URL}/latest`);
-    this.defaultStartDate = moment(startOfPeriod).format('YYYY-MM-DD HH:mm:ss');
-    await this.resetDatesToDefault();
-    await this.setState({
-      showDatePickers: true,
-    });
+  async getPeriods() {
+    try {
+      const periods = await Api.get(`${Api.PERIODS_URL}`);
+      const dateRanges = new PeriodsModel(periods);
+      await this.setState({ periods: dateRanges, currentPeriod: dateRanges[0] });
+    } catch(e) {
+      console.error('Error al cargar los periodos >' , e);
+      this.setState({errorMessage: 'Error al cargar los periodos'});
+    }
   }
 
   async refreshPage() {
-    const queryDate = `?fromDate=${this.state.fromDate}&toDate=${this.state.toDate}`;
-    const viaticos = await Api.get(`${Api.VIATICOS_URL}${queryDate}`);
-    this.setState({ viaticos: Object.values(viaticos || {}) });
-  }
+    try {
+      const queryDate = `?fromDate=${this.state.currentPeriod.startDate}&toDate=${this.state.currentPeriod.endDate}`;
+      const viaticos = await Api.get(`${Api.VIATICOS_URL}${queryDate}`);
+      this.setState({ viaticos: Object.values(viaticos || {}) });
 
-  async onDoneDate() {
-    if(this.selectedStartDate) {
-      await this.setState({ fromDate: this.selectedStartDate, showResetFilter: true });
-      this.selectedStartDate = '';
-      this.refreshPage();
-    } else if (this.selectedEndDate) {
-      await this.setState({ toDate: this.selectedEndDate, showResetFilter: true });
-      this.selectedEndDate = '';
-      this.refreshPage();
+    } catch(e) {
+      console.error('Error al cargar los viatcos > ', e);
+      this.setState({errorMessage: 'Error al cargar los viatcos'});
     }
-  }  
-
-  componentWillUnmount() {
-    document.querySelectorAll('.datepicker-done').forEach((el) => {
-      el.removeEventListener('click', this.onDoneDate.bind(this), null);
-    });
   }
 
-  onStartDateChange(date) {
-    this.selectedStartDate = moment(date).startOf('day').format('YYYY-MM-DD HH:mm:ss');
-  }
-
-  onEndDateChange(date) {
-    this.selectedEndDate = moment(date).endOf('day').format('YYYY-MM-DD HH:mm:ss');
-  }
-
-  async resetDatesToDefault(e) {
-    if (e) {
-      e.preventDefault();
-    }
-    this.datePickerStartOptions = {
-      ...this.datePickerStartOptions,
-      defaultDate: new Date(this.defaultStartDate),
-    };
-    this.datePickerEndOptions = {
-      ...this.datePickerEndOptions,
-      defaultDate: new Date(this.defaultEndDate),
-    };
-    await this.setState({
-      fromDate: this.defaultStartDate,
-      toDate: this.defaultEndDate,
-      showResetFilter: false,
-      showDatePickers: false,
-    });
-  }
-
-  async resetDatesToDefaultAndRefresh() {
-    await this.resetDatesToDefault();
-    await this.setState({
-      showDatePickers: true,
-    });
+  async setCurrentPeriodAndGetViaticos(currentPeriod) {
+    await this.setState({ currentPeriod, viaticos: undefined });
     await this.refreshPage();
-    document.querySelectorAll('.datepicker-done').forEach((el) => {
-      el.removeEventListener('click', this.onDoneDate.bind(this), null);
-      el.addEventListener('click', this.onDoneDate.bind(this), null);
-    });
   }
+
 
   getEmployeeHeader(empViaticos) {
     return <div className="employee-header-sumary">
@@ -159,14 +95,12 @@ export default class Viaticos extends React.Component {
     return <div id="viaticos">
       <div className="viaticos__header">
         <h1>Viaticos</h1>
-        <h5>Viendo desde </h5>
-        {this.state.showDatePickers && <DatePicker options={this.datePickerStartOptions}/>}
-        a 
-        {this.state.showDatePickers && <DatePicker options={this.datePickerEndOptions}/>}
-        {
-          this.state.showResetFilter &&
-            <a className="reset-btn" onClick={(e) => this.resetDatesToDefaultAndRefresh(e) }>Clear</a>
-        }
+        <div className="filter-headers">
+          {!!this.state.periods.length && <PeriodsSector
+            periods={this.state.periods}
+            setCurrentPeriod={(currentPeriod) => this.setCurrentPeriodAndGetViaticos(currentPeriod) }>
+          </PeriodsSector>}
+        </div>
       </div>
       <div className="row">
         {this.message()}
