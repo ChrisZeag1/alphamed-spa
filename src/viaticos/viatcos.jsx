@@ -27,7 +27,8 @@ export default class Viaticos extends React.Component {
     try {
       const periods = await Api.get(`${Api.PERIODS_URL}`);
       const dateRanges = new PeriodsModel(periods);
-      await this.setState({ periods: dateRanges, currentPeriod: dateRanges[0] });
+      const prevPeriodSelection = JSON.parse(localStorage.getItem('currentPeriod'));
+      await this.setState({ periods: dateRanges, currentPeriod: prevPeriodSelection || dateRanges[0] });
     } catch(e) {
       console.error('Error al cargar los periodos >' , e);
       this.setState({errorMessage: 'Error al cargar los periodos'});
@@ -98,6 +99,7 @@ export default class Viaticos extends React.Component {
         <div className="filter-headers">
           {!!this.state.periods.length && <PeriodsSector
             periods={this.state.periods}
+            initPeriod={this.state.currentPeriod}
             setCurrentPeriod={(currentPeriod) => this.setCurrentPeriodAndGetViaticos(currentPeriod) }>
           </PeriodsSector>}
         </div>

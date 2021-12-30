@@ -5,15 +5,19 @@ import './periods-selector.scss';
 export const PeriodsSector = (props) => {
   const dateRanges = props.periods;
   const lastRangeIndex = dateRanges.length - 1;
-  const [currentRangeIndex, setcurrentRangeIndex] = useState(0);
+  const defaultIndex = props.initPeriod ?
+    dateRanges.findIndex(r => r.startDate == props.initPeriod.startDate && r.endDate == props.initPeriod.endDate) : 0;
+  const [currentRangeIndex, setcurrentRangeIndex] = useState(defaultIndex || 0);
 
   const onPrev = () => {
     setcurrentRangeIndex(currentRangeIndex - 1);
+    localStorage.setItem('currentPeriod', JSON.stringify(dateRanges[currentRangeIndex - 1]));
     props.setCurrentPeriod(dateRanges[currentRangeIndex - 1]);
   };
 
   const onNext = () => {
     setcurrentRangeIndex(currentRangeIndex + 1);
+    localStorage.setItem('currentPeriod', JSON.stringify(dateRanges[currentRangeIndex + 1]));
     props.setCurrentPeriod(dateRanges[currentRangeIndex + 1]);
   };
 

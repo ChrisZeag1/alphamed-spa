@@ -20,7 +20,9 @@ export const totales =  {
       metodo,
       total: this.getConIva((!username ? totalSales :
         totalSales.filter(sale => sale.userName === username))
-        .filter(sale => sale.metodoPago ===  metodo))
+        .filter(sale =>
+          (sale.metodoPago || sale.form.metodoPago) ===  metodo
+        ))
     }))
   }
 }

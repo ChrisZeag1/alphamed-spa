@@ -65,6 +65,7 @@ export  class App extends React.Component {
   handleLogout() {
     this.setState({ user: null });
     localStorage.setItem('am-user', null);
+    localStorage.setItem('currentPeriod', null);
   }
 
   render() {

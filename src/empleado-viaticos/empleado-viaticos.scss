@@ -1,5 +1,5 @@
 #fecha-viatico {
-  
+
   .filters {
     margin-bottom: 10px;
   }
@@ -27,6 +27,11 @@
 
 #empleado-viaticos {
   margin: 15px;
+
+  
+  .collection-header.bluish {
+    background: #b3e5fc;
+  }
 
   .message {
     position: fixed;

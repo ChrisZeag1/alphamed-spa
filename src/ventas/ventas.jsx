@@ -53,7 +53,8 @@ export default class Ventas extends React.Component {
     try {
       const periods = await Api.get(`${Api.PERIODS_URL}`);
       const dateRanges = new PeriodsModel(periods);
-      await this.setState({ periods: dateRanges, currentPeriod: dateRanges[0] });
+      const prevPeriodSelection = JSON.parse(localStorage.getItem('currentPeriod'));
+      await this.setState({ periods: dateRanges, currentPeriod: prevPeriodSelection || dateRanges[0] });
     } catch(e) {
       console.error('hubo un error al obtener las corridas > ', e);
       this.displayMessage({ errorMessage: 'hubo un error al obtener las corridas'});
@@ -116,7 +117,7 @@ export default class Ventas extends React.Component {
 
   async getTotalViaticos() {
     try {
-      const queryDate = `?fromDate=${this.state.fromDate}&toDate=${this.state.toDate}`;
+      const queryDate = `?fromDate=${this.state.currentPeriod.startDate}&toDate=${this.state.currentPeriod.endDate}`;
       const viaticos = await Api.get(`${Api.VIATICOS_URL}${queryDate}`);
       const totalViaticos = Object.values((this.selectedUserName ? viaticos[this.selectedUserName] : viaticos) || {})
         .reduce((allViaticos, employeeViaticos) =>(
@@ -368,6 +369,7 @@ export default class Ventas extends React.Component {
         <div className="filter-headers">
         {this.state.periods && this.state.periods.length && <PeriodsSector
             periods={this.state.periods}
+            initPeriod={this.state.currentPeriod}
             setCurrentPeriod={(currentPeriod) => this.setCurrentPeriodAndGetNewSales(currentPeriod) }>
           </PeriodsSector>}
         </div>

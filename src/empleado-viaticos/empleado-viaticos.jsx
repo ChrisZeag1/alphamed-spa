@@ -33,7 +33,8 @@ export default class EmpleadoViaticos extends React.Component {
       isModalOpen: false,
       form: {
         ...this.newViaticoEmptyFrom
-      }
+      },
+      totalViaticos: null,
     };
     this.datePickerOptions = {
       ...datePickerOptions,
@@ -61,7 +62,10 @@ export default class EmpleadoViaticos extends React.Component {
     const fromToQuery = `?fromDate=${startOfWeek}&toDate=${endOfWeek}`;
     try {
       const viaticos = await Api.get(`${Api.VIATICOS_URL}/${this.userName}${fromToQuery}`);
-      this.setState({ viaticos: viaticos.sort(this.sortViatico) });
+      const totalViaticos = viaticos.reduce((acc, viatico) => (
+        acc + viatico.total
+      ), 0);
+      this.setState({ viaticos: viaticos.sort(this.sortViatico), totalViaticos });
     } catch(e) {
       console.error(e);
       this.setState({errorMessage: 'hubo un problema al obtener tus viaticos. Intenta de nuevo.', viaticos: [] });
@@ -69,9 +73,15 @@ export default class EmpleadoViaticos extends React.Component {
   }
 
   async getPeriods() {
-    const periods = await Api.get(`${Api.PERIODS_URL}`);
-    const dateRanges = new PeriodsModel(periods);
-    await this.setState({ periods: dateRanges, currentPeriod: dateRanges[0] });
+    try {
+      const periods = await Api.get(`${Api.PERIODS_URL}`);
+      const dateRanges = new PeriodsModel(periods);
+      const prevPeriodSelection = JSON.parse(localStorage.getItem('currentPeriod'));
+      await this.setState({ periods: dateRanges, currentPeriod: prevPeriodSelection || dateRanges[0] });
+    } catch(e) {
+      this.setState({ errorMessage: 'Hubo un problema al obtener las corridas' });
+      console.error(e);
+    } 
   }
 
   async setCurrentPeriodAndGetNewViaticos(currentPeriod) {
@@ -221,6 +231,7 @@ export default class EmpleadoViaticos extends React.Component {
         <div className="filters">
           {!!this.state.periods.length && <PeriodsSector
               periods={this.state.periods}
+              initPeriod={this.state.currentPeriod}
               setCurrentPeriod={(currentPeriod) => this.setCurrentPeriodAndGetNewViaticos(currentPeriod) }>
             </PeriodsSector>}
         </div>
@@ -251,6 +262,16 @@ export default class EmpleadoViaticos extends React.Component {
             </CollapsibleItem>)}
           </Collapsible>
       }
+      <div className="summary-section">
+        <h3>Resumen</h3>
+        {this.state.totalViaticos === undefined ? <Spinner/> :
+          <ul className="collection with-header col s12 m3">
+            <li className="collection-header bluish"><h5>Total</h5></li>
+            <li className="collection-item">
+              <p><b>Viáticos usados: </b> <span>$ {this.state.totalViaticos}</span></p>
+            </li>
+          </ul>} 
+      </div>
     </div>
   }
 }
