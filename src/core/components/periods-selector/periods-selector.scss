@@ -1,0 +1,23 @@
+#periods-selector-main {
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+
+ .dates {
+  display: inherit;
+  
+  .date-time {
+      margin: 0 10px;
+      display: flex;
+      flex-direction: column;
+
+      .time {
+        font-size: 12px;
+        text-align: center;
+      }
+
+   }
+
+ }
+
+}

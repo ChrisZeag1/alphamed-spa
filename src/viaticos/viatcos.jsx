@@ -45,9 +45,6 @@ export default class Viaticos extends React.Component {
 
   async getPeriod() {
     let startOfPeriod = await Api.get(`${Api.PERIODS_URL}/latest`);
-    if (!startOfPeriod) {
-      startOfPeriod = localStorage.getItem('startOfPeriod');
-    }
     this.defaultStartDate = moment(startOfPeriod).format('YYYY-MM-DD HH:mm:ss');
     await this.resetDatesToDefault();
     await this.setState({

@@ -1,6 +1,6 @@
 import React from 'react';
 import * as Api from '../core/api';
-import { Spinner } from '../core/components';
+import { Spinner, PeriodsSector, PeriodsModel } from '../core/components';
 import { Collapsible, CollapsibleItem, Button, Modal, DatePicker, Checkbox } from 'react-materialize';
 import { datePickerOptions } from '../core/components/date-picker/date-picker-options';
 import * as moment from 'moment';
@@ -24,7 +24,8 @@ export default class EmpleadoViaticos extends React.Component {
     super(props);
     this.state = {
       viaticos: null,
-      startOfPeriod: '',
+      currentPeriod: null,
+      periods: [],
       isDeleteLoading: false,
       isSubmitLoading: false,
       errorMessage: '',
@@ -46,7 +47,7 @@ export default class EmpleadoViaticos extends React.Component {
 
   async componentDidMount() {
     this.userName = _get(JSON.parse(localStorage.getItem('am-user')), 'userName');
-    await this.getPeriod();
+    await this.getPeriods();
     await this.getViaticos();
     document.querySelectorAll('.datepicker-done').forEach((el) => {
       el.addEventListener('click', this.onDoneDate.bind(this), null);
@@ -55,8 +56,8 @@ export default class EmpleadoViaticos extends React.Component {
 
   async getViaticos() {
     this.setState({ viaticos: null });
-    const startOfWeek = moment(this.state.startOfPeriod).startOf('day').startOf('week').format('YYYY-MM-DD HH:mm:ss');
-    const endOfWeek = moment().endOf('day').endOf('week').format('YYYY-MM-DD HH:mm:ss');
+    const startOfWeek = this.state.currentPeriod.startDate;
+    const endOfWeek = this.state.currentPeriod.endDate;
     const fromToQuery = `?fromDate=${startOfWeek}&toDate=${endOfWeek}`;
     try {
       const viaticos = await Api.get(`${Api.VIATICOS_URL}/${this.userName}${fromToQuery}`);
@@ -67,17 +68,15 @@ export default class EmpleadoViaticos extends React.Component {
     }
   }
 
-  async getPeriod() {
-    try {
-      const startOfPeriod = await Api.get(`${Api.PERIODS_URL}/latest`);
-      const defualtPastDate = moment().subtract(14, "days").format('YYYY-MM-DD HH:mm:ss')
-      this.setState({ startOfPeriod:  startOfPeriod || defualtPastDate });
-    } catch(e) {
-      const defualtPastDate = moment().subtract(14, "days").format('YYYY-MM-DD HH:mm:ss')
-      this.setState({ startOfPeriod: defualtPastDate });
-      console.error(e);
-      this.setState({errorMessage: `Hubo un problema al obtener la fecha de incio de la corrida. Intenta mas tarde.` });
-    }
+  async getPeriods() {
+    const periods = await Api.get(`${Api.PERIODS_URL}`);
+    const dateRanges = new PeriodsModel(periods);
+    await this.setState({ periods: dateRanges, currentPeriod: dateRanges[0] });
+  }
+
+  async setCurrentPeriodAndGetNewViaticos(currentPeriod) {
+    await this.setState({ currentPeriod });
+    await this.getViaticos();
   }
 
   async deleteViatico({ viaticoId }, index) {
@@ -219,6 +218,12 @@ export default class EmpleadoViaticos extends React.Component {
       </Modal>
       <div className="header">
         <h1>Mis viaticos</h1>
+        <div className="filters">
+          {!!this.state.periods.length && <PeriodsSector
+              periods={this.state.periods}
+              setCurrentPeriod={(currentPeriod) => this.setCurrentPeriodAndGetNewViaticos(currentPeriod) }>
+            </PeriodsSector>}
+        </div>
         <div className="row text-centered">
         <button className="btn waves-effect waves-light"
               onClick={() => this.setState({ isModalOpen: true }) }

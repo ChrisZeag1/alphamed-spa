@@ -1,6 +1,6 @@
 import React from 'react';
-import { Card } from 'react-materialize';
-import { Spinner } from '../core/components';
+import { Card, Button } from 'react-materialize';
+import { Spinner, PeriodsModel } from '../core/components';
 import * as moment from 'moment';
 import * as Api from '../core/api';
 
@@ -12,22 +12,21 @@ export default class ManagerDashboard extends React.Component {
   constructor() {
     super();
     this.state = {
-    currentPeriod: {
-      startOf: '',
-    },
+    periods: [],
     isLoadingRestart: false,
     errorMessage: '',
     }
   }
 
-  async componentDidMount() {
-    let startOfPeriod = await Api.get(`${Api.PERIODS_URL}/latest`);
-    if (!startOfPeriod) {
-      startOfPeriod = localStorage.getItem('startOfPeriod');
-    }
-    this.setState({ currentPeriod: {
-      startOf: moment(startOfPeriod.split('T')[0]).format(DATE_FORMAT)
-    }});
+  componentDidMount() {
+    this.getPeriods();
+  }
+
+  async getPeriods() {
+    this.setState({ periods: [] });
+    const periods = await Api.get(`${Api.PERIODS_URL}`);
+    const dateRanges = new PeriodsModel(periods);
+    await this.setState({ periods: dateRanges });
   }
   
   async reStartPeriod(e) {
@@ -35,21 +34,22 @@ export default class ManagerDashboard extends React.Component {
     if (this.state.isLoadingRestart) {
       return;
     }
-    const startOf = moment().subtract(3, 'minute').format(DATE_FORMAT + ' HH:mm:ss');
-    localStorage.setItem('startOfPeriod', startOf);
+    const prevPeriods = this.state.periods;
+    const startOf = moment().subtract(3, 'minute').format().replace('T', ' ');
+
     this.setState({
       isLoadingRestart: true,
-      currentPeriod: {
-        startOf
-      }
+      periods:[]
     });
     try {
       const sucess = await Api.post(Api.PERIODS_URL, { startOf });
       if (!sucess) {
-        this.setState({ errorMessage: 'ha habido un error ', currentPeriod: { startOf: null } });
+        this.setState({ errorMessage: 'ha habido un error ', currentPeriod: prevPeriods });
+      } else  {
+        await this.getPeriods();
       }
     } catch (e) {
-      this.setState({ errorMessage: e.message, currentPeriod: { startOf: null } });
+      this.setState({ errorMessage: e.message, periods: prevPeriods });
     }
     this.setState({ isLoadingRestart: false });
     
@@ -62,20 +62,37 @@ export default class ManagerDashboard extends React.Component {
         <div className="dashbord-tile col s10 m5">
           <Card
             actions={[
-              <a className={this.state.isLoadingRestart ? 'disabled' : ''}
+              <Button disabled={this.state.isLoadingRestart}
                   key="1" onClick={(e) => { this.reStartPeriod(e) }}>
-                { 
+                {
                   !this.state.isLoadingRestart ?
-                    <span>Nueva ruta</span> :
+                    <span>Nueva corrida (periodo)</span> :
                     <span>Cargando...</span>
                 }
-              </a>
+              </Button>
             ]}
             horizontal>
-             { this.state.currentPeriod.startOf ? <div>
-              Periodo del 
-              <span> {moment(this.state.currentPeriod.startOf).format('ll')}</span>  al
-               <span> {moment().format('ll')} </span>
+             { this.state.periods.length ? <div>
+               <h5>Corridas</h5>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Inicio</th>
+                      <th>Fin</th>
+                  </tr>
+                </thead>
+                  {
+                    this.state.periods.map((p, i) => <tr>
+                      <td>{moment(p.startDate).format('DD/MM/YY hh:mm a')}</td>
+                      <td>
+                        {moment(p.endDate).format('DD/MM/YY') === moment().format('DD/MM/YY') && !i ? '' :
+                          moment(p.endDate).format('DD/MM/YY hh:mm a') }
+                      </td>
+                    </tr>)
+                  }
+                <tbody>
+                </tbody>
+              </table>
               </div>: <Spinner/>}            
           </Card>          
         </div>
