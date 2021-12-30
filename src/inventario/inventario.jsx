@@ -201,7 +201,7 @@ export default class Inventario extends React.Component {
           <th>Articulo</th>
           <th>precio</th>
           {this.state.dynamicFields.map(field =>
-            <th key={field}>{ this.selectedUser.name && !field.includes('_HISTO') ? 'Cantidad' : 'Inventario Original'}</th>
+            <th key={field}>{ this.selectedUser.name && !field.includes('_HISTO') ? 'Cantidad' : `Inventario ${field.includes('_HISTO') ? 'Original' : `de ${field}`}`}</th>
           )}
           {this.state.isEditMode && <th>Acciones</th> }
         </tr>
@@ -231,7 +231,7 @@ export default class Inventario extends React.Component {
           {this.state.isEditMode && <td><Button
               className="red lighten-2"
               onClick={() => this.deleteItemAndUpdate(item)}
-              icon={<i className="small material-icons">Borrar</i>}>
+              icon={<i className="small material-icons">delete</i>}>
           </Button></td>}
         </tr>)}
       </tbody>
