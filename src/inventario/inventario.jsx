@@ -3,12 +3,14 @@ import * as Api from '../core/api';
 import { Spinner } from '../core/components';
 import './inventario.scss';
 import { Button, Modal } from 'react-materialize';
-const STATIC_FIELDS = ['articulo', 'precio', 'articuloId'];
+import { sortInvetario } from './sort-invetario.model';
+const STATIC_FIELDS = ['articulo', 'precio', 'articuloId', 'categoria'];
 
 export default class Inventario extends React.Component {
   newItemFrom = {
     articulo: '',
     precio: '',
+    categoria: 0
   };
   selectedUser = {};
 
@@ -66,13 +68,8 @@ export default class Inventario extends React.Component {
       const inventario = await Api.get(Api.INVENTARIO_URL);
       let dynamicFields = this.getDynamicFields(inventario);
 
-      const newItemFromFields = dynamicFields.reduce((acc, fieldName) => {
-        acc[fieldName] = '';
-        return acc;
-      }, {});
       this.newItemFrom = {
-        ...this.newItemFrom,
-        ...newItemFromFields,
+        ...this.newItemFrom
       }
 
       if(this.selectedUser.userName) {
@@ -80,10 +77,10 @@ export default class Inventario extends React.Component {
           .filter(fieldName => fieldName === this.selectedUser.userName)
         dynamicFields.push(this.selectedUser.userName + '_HISTO');
         await this.setState({ isEditMode: true });
-      }      
+      }
 
       this.setState({
-        inventario: inventario.sort(this.sortArticulo),
+        inventario: sortInvetario(inventario),
         dynamicFields,
         isLoading: false,
         errorMessage: null
@@ -187,10 +184,6 @@ export default class Inventario extends React.Component {
     }
   }
 
-  sortArticulo(a, b) {
-    return a.articulo < b.articulo ? -1 : a.articulo === b.articulo ? 0 : 1;
-  }
-
   table() {
     if(!this.state.inventario.length) {
       return <h6>No hay inventario. Agrega nuevo inventario en el button agregar</h6>
@@ -199,7 +192,8 @@ export default class Inventario extends React.Component {
       <thead>
         <tr>
           <th>Articulo</th>
-          <th>precio</th>
+          <th>Precio</th>
+          <th>Categoria</th>
           {this.state.dynamicFields.map(field =>
             <th key={field}>{ this.selectedUser.name && !field.includes('_HISTO') ? 'Cantidad' : `Inventario ${field.includes('_HISTO') ? 'Original' : `de ${field}`}`}</th>
           )}
@@ -217,6 +211,11 @@ export default class Inventario extends React.Component {
             (!this.state.isEditMode || this.selectedUser.userName) ? item.precio :
               <input className="width-80" type="number" value={item.precio} onChange={(e) => this.handleChange(+e.target.value, item, 'precio') }/>
           } MXN</td>
+
+          <td>{
+            (!this.state.isEditMode || this.selectedUser.userName) ? item.categoria :
+              <input className="width-80" type="number" value={item.categoria} onChange={(e) => this.handleChange(+e.target.value, item, 'categoria') }/>
+          }</td>          
 
           {this.state.dynamicFields
             .map(df =>
@@ -300,7 +299,7 @@ export default class Inventario extends React.Component {
                 <input id={fieldName}
                     value={this.state.newItemFrom[fieldName]} 
                     onChange={(e) => this.handleFormFieldChange(e, fieldName) }
-                    type={ [...this.state.dynamicFields, 'precio'].includes(fieldName) ? 'number': 'text'}/>
+                    type={ ['categoria', 'precio'].includes(fieldName) ? 'number': 'text'}/>
                 <label htmlFor={fieldName}>{fieldName}</label>
               </div>)}
             </div>

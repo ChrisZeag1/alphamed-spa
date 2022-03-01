@@ -10,7 +10,6 @@ import EmpleadoVentas from '../../empleado-ventas/empleado-ventas'
 import EmpleadoViaticos  from '../../empleado-viaticos/empleado-viaticos';
 import MisVentas from '../../mis-ventas/mis-ventas';
 
-
 export const EMPLOYEE_ROUTES = [
   { path:'/dasboard', render: <h1>Dashboard</h1>, icon: 'home', name: 'Dasboard' },
   { path:'/invetario', render: <EmpleadoInventario/>, icon: 'library_books', name: 'Invetario' },
@@ -18,7 +17,6 @@ export const EMPLOYEE_ROUTES = [
   { path:'/ventas', render: <MisVentas/>, icon: 'attach_money', name: 'Mis ventas' },
   { path:'/viaticos', render: <EmpleadoViaticos/>, icon: 'card_travel', name: 'Mis Viaticos' },
 ];
-
 
 export const MANAGER_ROUTES = [
   { path:'/dasboard', render: <ManagerDashbard/>, icon: 'home', name: 'Dasboard' },

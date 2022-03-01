@@ -4,6 +4,7 @@ import { Button } from 'react-materialize';
 import './empleado-ventas.scss';
 import * as moment from 'moment';
 import { get as _get } from 'lodash';
+import { sortInvetario } from '../inventario/sort-invetario.model';
 import * as Api from '../core/api';
 
 export default class EmpleadoVentas extends React.Component {
@@ -68,13 +69,7 @@ export default class EmpleadoVentas extends React.Component {
     });
 
   }
-
-  sortArticulo(a, b) {
-    return a.articulo < b.articulo ? -1 : a.articulo === b.articulo ? 0 : 1;
-  }
-
   
-
   async onSubmitForm(e) {
     e.preventDefault();
     const articulos = this.state.articulos.filter(a => a.articuloId);
@@ -136,7 +131,7 @@ export default class EmpleadoVentas extends React.Component {
       const inventario = await Api.get(Api.INVENTARIO_URL + `/${this.userName}`);
       this.setState({
         inventario,
-        availableInventario: inventario.filter(i => i.cantidad).sort(this.sortArticulo),
+        availableInventario: sortInvetario(inventario.filter(i => i.cantidad)),
         errorMessage: ''
       });
     } catch(e) {

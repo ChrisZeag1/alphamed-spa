@@ -2,6 +2,7 @@ import React from 'react';
 import * as Api from '../core/api';
 import './empleado-invetario.scss';
 import { Spinner } from '../core/components';
+import { sortInvetario } from '../inventario/sort-invetario.model';
 import { get as _get } from 'lodash';
 
 export default class EmpleadoInventario extends React.Component {
@@ -42,7 +43,7 @@ export default class EmpleadoInventario extends React.Component {
       const inventario = await Api.get(Api.INVENTARIO_URL + `/${this.userName}`);
       this.setState({
         inventario,
-        invetarioFiltrado: inventario.sort(this.sortArticulo),
+        invetarioFiltrado: sortInvetario(inventario.filter(i => i.cantidad)),
         isLoading: false,
         errorMessage: null
       });
@@ -62,6 +63,7 @@ export default class EmpleadoInventario extends React.Component {
           <th>Artículo</th>
           <th>Precio</th>
           <th>Cantidad</th>
+          <th>Categoria</th>
         </tr>
       </thead>
       <tbody>
@@ -69,6 +71,7 @@ export default class EmpleadoInventario extends React.Component {
           <td>{item.articulo}</td>
           <td>${item.precio} MXN</td>
           <td className="cantidad">{item.cantidad}</td>
+          <td className="cantidad">{item.categoria}</td>
         </tr>)}
       </tbody>
     </table>
