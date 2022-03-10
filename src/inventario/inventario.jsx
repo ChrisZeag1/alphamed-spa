@@ -204,25 +204,25 @@ export default class Inventario extends React.Component {
         {(this.state.inventario || []).map(item => <tr key={item.articuloId}>
           <td>{
             (!this.state.isEditMode || this.selectedUser.name)  ? item.articulo : 
-              <input type="text" value={item.articulo} onChange={(e) => this.handleChange(e.target.value, item, 'articulo') }/>
+              <input tabIndex="1" type="text" value={item.articulo} onChange={(e) => this.handleChange(e.target.value, item, 'articulo') }/>
           }</td>
 
           <td>${
             (!this.state.isEditMode || this.selectedUser.userName) ? item.precio :
-              <input className="width-80" type="number" value={item.precio} onChange={(e) => this.handleChange(+e.target.value, item, 'precio') }/>
+              <input tabIndex="2" className="width-80" type="number" value={item.precio} onChange={(e) => this.handleChange(+e.target.value, item, 'precio') }/>
           } MXN</td>
 
           <td>{
             (!this.state.isEditMode || this.selectedUser.userName) ? item.categoria :
-              <input className="width-80" type="number" value={item.categoria} onChange={(e) => this.handleChange(+e.target.value, item, 'categoria') }/>
+              <input tabIndex="3" className="width-80" type="number" value={item.categoria} onChange={(e) => this.handleChange(+e.target.value, item, 'categoria') }/>
           }</td>          
 
           {this.state.dynamicFields
-            .map(df =>
+            .map((df, index) =>
               <td key={item.articuloId + ' ' + df}>
                 {
                   !this.state.isEditMode || df.includes('_HISTO') ? <span>{item[df]}</span> : 
-                    <input type="number" value={item[df]} onChange={(e) => this.handleChange(+e.target.value, item, df) }/>
+                    <input tabIndex={index + 4} type="number" value={item[df]} onChange={(e) => this.handleChange(+e.target.value, item, df) }/>
                 }
               </td>
           )}

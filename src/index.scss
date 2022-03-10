@@ -8,6 +8,26 @@ body {
   margin: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+  }
+  
+  /* Firefox */
+  input[type=number] {
+    -moz-appearance: textfield;
+  }
+
+  .btn:focus {
+    border: 1px solid white;
+    border-radius: 5px;
+  }
+
+  a:focus {
+    border: 1px solid white;
+    border-radius: 5px;
+  }
 }
 
 code {
