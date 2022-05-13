@@ -80,6 +80,9 @@ export default class EmpleadoVentas extends React.Component {
     if(!this.state.form.metodoPago) {
       errors.push('Falta agregar el método de pago');
     }
+    if(!this.state.form.nombreDoctor) {
+      errors.push('Falta agregar el nombre del Doctor');
+    }
     if(errors.length) {
       this.setState({ errorMessage: errors.join(',  ')});
       window.scroll({ top: 0,  behavior: 'smooth' });

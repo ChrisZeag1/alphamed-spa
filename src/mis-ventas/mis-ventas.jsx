@@ -22,6 +22,7 @@ export default class MisVentas extends React.Component {
         startDate: null,
         endDate: null
       },
+      updatingSaleForm: {},
       totalViaticos: null,
       totalEfectivoDisponible: 0
     }
@@ -126,6 +127,114 @@ export default class MisVentas extends React.Component {
     </div>
   }
 
+  updateFromState(newFieldValue) {
+    const updatingSaleForm = {
+      ...this.state.updatingSaleForm,
+      form: {
+        ...this.state.updatingSaleForm.form,
+        ...newFieldValue
+      }
+    };
+    this.setState({ updatingSaleForm });
+  }
+
+  async onSaleEdit(e, saleIndex) {
+    e.preventDefault();
+    const errors = [];
+    if (!this.state.updatingSaleForm.articulos.length) {
+      errors.push('No hay articulos para vender');
+    }
+    if (this.state.updatingSaleForm.articulos.some(a => !a.cantidad)) {
+      errors.push('Existen articulos sin cantidad asignada');
+    }
+    if (!this.state.updatingSaleForm.form.metodoPago) {
+      errors.push('Falta agregar el método de pago');
+    }
+    if (errors.length) {
+      this.displayMessage({ errorMessage: errors.join(',  ')});
+      window.scroll({ top: 0,  behavior: 'smooth' });
+      return;
+    }
+    const toBeSaved = {
+      ...this.state.updatingSaleForm.form,
+      articulos: this.state.updatingSaleForm.articulos.filter(a => a.articuloId),
+      subTotal: +(this.state.updatingSaleForm.subTotal.toFixed(2)),
+      total: +(this.state.updatingSaleForm.total.toFixed(2)),
+      IVA: this.state.updatingSaleForm.IVA
+    };
+
+    try {
+      // const response = await Api.post(`${Api.VENTAS_URL}/${userName}/${ventaId}`, toBeSaved);
+      // if (response && response.ventaId) {
+      //   this.refreshPage();
+      //   this.displayMessage({ successMessage: `La venta con id ${ventaId} de ${userName} ha sido editada`});
+      // }
+      console.log('saving form>',toBeSaved);
+    } catch(e) {
+      console.error(e);
+      // this.displayMessage({ errorMessage: e.message });
+    }
+  }
+
+  updateUserState(newSaleState) {
+    this.setState({
+      updatingSaleForm: {
+        ...this.state.updatingSaleForm,
+        ...newSaleState
+      }
+    });
+  }
+
+  async onDeleteSale(e,  saleIndex) {
+    e.preventDefault();
+    if (this.state.isLoadingDelete) {
+      return;
+    }
+    this.setState({ isLoadingDelete: true });
+    try {
+      const newMySales = [
+        ...this.state.mySales.slice(0, saleIndex),
+        ...this.state.mySales.slice(saleIndex + 1, userState.sale.length),
+      ];
+      this.setState({ mySales: newMySales });
+      // const reqDeleted = await Api.deleteReq(Api.VENTAS_URL + `/${employeeName}/${saleId}`);
+      // if (reqDeleted) {
+        // const newUserState =  this.sliceSale(employeeName, saleId);
+        // const userIndex = this.state.stateUsers.findIndex(stateUser => stateUser.userName === employeeName)
+        // await this.setUserState(newUserState, userIndex);
+        this.displayMessage({ errorMessage: '', successMessage: 'Venta Borrada', isLoadingDelete: false });
+      // }
+    }catch(e) {
+      console.error(e);
+      this.displayMessage({ errorMessage: 'Hubo un problema al borrar la venta', isLoadingDelete: false });
+    }
+  }
+
+  toggleEditMode(saleIndex) {
+    const sale = this.state.mySales[saleIndex];
+    const newMySales = [
+      ...this.state.mySales.slice(0, saleIndex),
+      { ...sale }
+      ...this.state.mySales.slice(saleIndex + 1, userState.sale.length),
+    ];
+    this.setState({mySales: });
+  }
+
+  message() {
+    return <React.Fragment>
+      {
+        this.state.errorMessage && <div id="error-message" className="red accent-4 error-msg col s10 message">
+         {this.state.errorMessage}
+        </div>
+      }
+      {
+        this.state.successMessage && <div id="sucess-message" className="teal accent-4 success-msg col s10 message">
+          {this.state.successMessage}
+        </div>
+      }
+    </React.Fragment>
+  }
+
   render() {
     return <div id="my-sales">
       <div className="sales__header">
@@ -138,20 +247,43 @@ export default class MisVentas extends React.Component {
           </PeriodsSector>}
         </div>
       </div>
+      <div className="row">
+        {this.message()}
+      </div>
       {
         this.state.mySales ? <div className="row">
           <Collapsible popout>
             {
               !this.state.mySales || !this.state.mySales.length ?
                 <h5 className="text-centered"> Sin resultados</h5> :
-                this.state.mySales.map(empSale =>
+                this.state.mySales.map((empSale, saleIndex) =>
                   <CollapsibleItem key={empSale.ventaId}
                     header={this.getSalesHeader(empSale)}>
-                      <SalesForm {...empSale} inventario={this.state.inventario}></SalesForm>
+                      {sale.form.isReadMode ?  <SalesForm {...empSale} inventario={this.state.inventario}>
+                        <Button onClick={(e) => {e.preventDefault();this.toggleEditMode(saleIndex)}}>Editar</Button>
+                      </SalesForm>
+                      : <SalesForm {...this.state.updatingSaleForm}
+                      setFormField={(newFieldValue) => this.updateFromState(newFieldValue)}
+                      onSubmitForm={(e) => this.onSaleEdit(e, saleIndex)}
+                      updateState={(newState) => this.updateUserState(newState)}>
+                        <span className="sale-edit-mode-actions">
+                          <Button type="submit" disabled={this.state.ventaLoading}>
+                          {!this.state.ventaLoading ?
+                            <span>Guardar</span> : <span>Cargando ...</span>}
+                          </Button>
+                          <a className={`delete ${this.state.isLoadingDelete ? 'disabled' : ''}`}
+                            onClick={(e) => this.onDeleteSale(e, saleIndex)}>
+                            <i className="material-icons small">delete_forever</i>
+                            { !this.state.isLoadingDelete ? <span>ELIMINAR</span> :
+                            <span>ELIMINANDO...</span> }
+                          </a>
+                        </span>                                
+                    </SalesForm>}
+
                   </CollapsibleItem>) 
             }
           </Collapsible>
-          </div> : <Spinner/>
+        </div> : <Spinner/>
       }
       <div className="summary-section">
         <h3>Resumen</h3>
