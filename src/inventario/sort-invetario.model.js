@@ -11,7 +11,7 @@ export function sortInvetario(inventario) {
     , []);
 }
 
-function sortArticulo(a, b) {
+export function sortArticulo(a, b) {
   const articuloA = a.articulo.toLowerCase().trim();
   const articuloB = b.articulo.toLowerCase().trim();
   return articuloA < articuloB ? -1 : articuloA === articuloB ? 0 : 1;

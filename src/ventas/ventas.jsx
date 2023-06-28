@@ -408,7 +408,7 @@ export default class Ventas extends React.Component {
                                     { !this.state.isLoadingDelete ? <span>ELIMINAR</span> :
                                     <span>ELIMINANDO...</span> }
                                   </a>
-                                </span>                                
+                                </span>
                             </SalesForm>)
                         }
                     </CollapsibleItem>))}

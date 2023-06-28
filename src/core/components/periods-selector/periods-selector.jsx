@@ -7,7 +7,7 @@ export const PeriodsSector = (props) => {
   const lastRangeIndex = dateRanges.length - 1;
   const defaultIndex = props.initPeriod ?
     dateRanges.findIndex(r => r.startDate == props.initPeriod.startDate && r.endDate == props.initPeriod.endDate) : 0;
-  const [currentRangeIndex, setcurrentRangeIndex] = useState(defaultIndex || 0);
+  const [currentRangeIndex, setcurrentRangeIndex] = useState(defaultIndex > -1 ? defaultIndex : 0);
 
   const onPrev = () => {
     setcurrentRangeIndex(currentRangeIndex - 1);
@@ -23,10 +23,10 @@ export const PeriodsSector = (props) => {
 
 
   return (<div id="periods-selector-main">
-    {currentRangeIndex < lastRangeIndex && <div className="period-select" role="button" onClick={() => onNext()}
+    <div className={`period-select ${currentRangeIndex < lastRangeIndex ? '': 'arrow-hidden'}`} role="button" onClick={() => onNext()}
       aria-label="periodo siguiente" title="periodo siguiente">
       <i className="medium material-icons">chevron_left</i>
-    </div>}
+    </div>
 
     <h5 className="dates">
 
@@ -44,8 +44,10 @@ export const PeriodsSector = (props) => {
 
     </h5>
 
-    {!!currentRangeIndex && <div className="period-select" role="button" onClick={() => onPrev()} aria-label="periodo anterior">
+    <div className={`period-select ${!!currentRangeIndex ? '': 'arrow-hidden'}`} role="button"
+      onClick={() => onPrev()}
+      aria-label="periodo anterior">
       <i className="medium material-icons">chevron_right</i>
-    </div>}
+    </div>
   </div>);
 };

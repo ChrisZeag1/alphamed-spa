@@ -6,6 +6,26 @@
     background: #b3e5fc;
   }
 
+
+    .sale-edit-mode-actions {
+      .delete {
+        margin-right: 10px;
+        color: #b71c1c;
+        cursor: pointer;
+
+        i {
+          vertical-align: middle;
+        }
+
+      }
+    }
+
+  .sale-edit-mode-actions {
+    button, a {
+      margin: 0 25px;
+    }
+  }
+
   .employee-header-sumary {
     width: 100%;
 
@@ -19,6 +39,16 @@
       &.money {
         color: #00bfa5;
       }
+
+      &.editing {
+        background-color: #26a69a;
+        color: white;
+        padding: 3px 8px;
+        text-align: center;
+        font-weight: 500;
+        border-radius: 3px;
+        margin: 0 5px;
+      }      
     }
 
     .sale-summary-info {

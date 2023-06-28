@@ -1,5 +1,5 @@
 import React from 'react';
-import { Collapsible,  CollapsibleItem } from 'react-materialize';
+import { Collapsible,  CollapsibleItem, Button } from 'react-materialize';
 import  * as moment from  'moment';
 import * as Api from '../core/api';
 import { Spinner, PeriodsSector, SalesForm, PeriodsModel } from '../core/components';
@@ -23,16 +23,34 @@ export default class MisVentas extends React.Component {
         endDate: null
       },
       totalViaticos: null,
-      totalEfectivoDisponible: 0
+      totalEfectivoDisponible: 0,
+      updatingSaleForm: null
     }
   }
 
   async componentDidMount() {
     this.userName = _get(JSON.parse(localStorage.getItem('am-user')), 'userName');
+    await this.refreshPage();
+  }
+
+  async refreshPage() {
+    await this.setState({
+      mySales: undefined,
+      inventario: undefined,
+      errorMessage: '',
+      periods: [],
+      currentPeriod: {
+        startDate: null,
+        endDate: null
+      },
+      totalViaticos: null,
+      totalEfectivoDisponible: 0,
+      updatingSaleForm: null
+    });
     await this.getPeriods();
     await this.getSales();
     await this.getInvetorio();
-    this.getTotalViaticos();
+    await this.getTotalViaticos();
   }
 
   async getPeriods() {
@@ -94,10 +112,114 @@ export default class MisVentas extends React.Component {
     }
   }
 
+  async onSaleEdit(e, userName, ventaId) {
+    e.preventDefault();
+    const errors = [];
+    if (!this.state.updatingSaleForm.articulos.length) {
+      errors.push('No hay articulos para vender');
+    }
+    if (this.state.updatingSaleForm.articulos.some(a => !a.cantidad)) {
+      errors.push('Existen articulos sin cantidad asignada');
+    }
+    if (!this.state.updatingSaleForm.form.metodoPago) {
+      errors.push('Falta agregar el método de pago');
+    }
+    if (errors.length) {
+      this.displayMessage({ errorMessage: errors.join(',  ')});
+      window.scroll({ top: 0,  behavior: 'smooth' });
+      return;
+    }
+    const toBeSaved = {
+      ...this.state.updatingSaleForm.form,
+      articulos: this.state.updatingSaleForm.articulos.filter(a => a.articuloId),
+      subTotal: +(this.state.updatingSaleForm.subTotal.toFixed(2)),
+      total: +(this.state.updatingSaleForm.total.toFixed(2)),
+      IVA: this.state.updatingSaleForm.IVA,
+      fechaVenta: this.state.updatingSaleForm.fechaVenta
+    };
+
+    try {
+      console.log('toBeSaved >', toBeSaved);
+      console.log('toBeSaved >', this.state.updatingSaleForm);
+      const response = await Api.post(`${Api.VENTAS_URL}/${userName}/${ventaId}`, toBeSaved);
+      if (response && response.ventaId) {
+        this.refreshPage();
+        this.displayMessage({ successMessage: `La venta con id ${ventaId} de ${userName} ha sido editada`});
+      }
+    } catch(e) {
+      console.error(e);
+      this.displayMessage({ errorMessage: e.message });
+    }
+  }
+
+  displayMessage(message) {
+    this.setState(message);
+    console.log('message >', message);
+    setTimeout(() => {
+      this.setState({ errorMessage: '', successMessage: '' });
+    }, 6000);
+  }
+
   async setCurrentPeriodAndGetNewSales(currentPeriod) {
     await this.setState({ currentPeriod, mySales: undefined });
     await this.getSales();
     this.getTotalViaticos();
+  }
+
+  getItemTotal(articulo) {
+    const cantidad = _get(articulo, 'cantidad', 0);
+    const precio =  _get(articulo, 'precio', 0);
+    const descuento = _get(articulo, 'descuento', 0)
+    return  ((cantidad * precio) - (descuento));
+  }
+
+  updateFromState(newFieldValue) {
+    const updatingSaleForm = {
+      ...this.state.updatingSaleForm,
+      form: {
+        ...this.state.updatingSaleForm.form,
+        ...newFieldValue
+      }
+    };
+    this.setState({ updatingSaleForm });
+  }
+
+  updateUserState(newSaleState) {
+    this.setState({
+      updatingSaleForm: {
+        ...this.state.updatingSaleForm,
+        ...newSaleState
+      }
+    });
+  }
+
+  async toggleEditMode(saleIndex) {
+      const newSales = this.state.mySales.map((s, i) => ({...s, form: {
+        ...s.form,
+        isReadMode: !(i === saleIndex)
+      }}));
+      const soldProduct = this.state.mySales[saleIndex].articulos
+        .map(articulo => articulo.articuloId);
+
+      await this.setState({
+        mySales: newSales,
+        updatingSaleForm: {
+          inventario: this.state.inventario,
+          availableInventario: this.state.inventario
+            .filter(i => i.cantidad)
+            .sort(this.sortArticulo)
+            .filter(i => !soldProduct.includes(i.articuloId)),
+          ...this.state.mySales[saleIndex],
+          articulos: this.state.mySales[saleIndex].articulos.map(a => ({
+            ...a,
+            total: this.getItemTotal(a)
+          })),
+          form: {
+            ...this.state.mySales[saleIndex].form,
+            isReadMode: false
+          }
+        }
+      });
   }
 
   async getInvetorio() {
@@ -117,6 +239,7 @@ export default class MisVentas extends React.Component {
     return <div className="employee-header-sumary">
       <div className="sale-summary-info between">
         <div className="sumary-el">ID: {sale.ventaId}</div>
+        {!sale.form.isReadMode && <div className="sumary-el s-w editing">Editando</div>}
         <div className="sumary-el main">{moment(sale.fechaVenta).format('ll')}</div>
       </div>
       <div className="sale-summary-info end">
@@ -124,6 +247,21 @@ export default class MisVentas extends React.Component {
         <div className="sumary-el money">$ {sale.subTotal} MXN</div>
       </div>
     </div>
+  }
+
+  message() {
+    return <React.Fragment>
+      {
+        this.state.errorMessage && <div id="error-message" className="red accent-4 error-msg col s10 message">
+         {this.state.errorMessage}
+        </div>
+      }
+      {
+        this.state.successMessage && <div id="sucess-message" className="teal accent-4 success-msg col s10 message">
+          {this.state.successMessage}
+        </div>
+      }
+    </React.Fragment>
   }
 
   render() {
@@ -137,6 +275,7 @@ export default class MisVentas extends React.Component {
             setCurrentPeriod={(currentPeriod) => this.setCurrentPeriodAndGetNewSales(currentPeriod) }>
           </PeriodsSector>}
         </div>
+        {this.message()}
       </div>
       {
         this.state.mySales ? <div className="row">
@@ -144,10 +283,29 @@ export default class MisVentas extends React.Component {
             {
               !this.state.mySales || !this.state.mySales.length ?
                 <h5 className="text-centered"> Sin resultados</h5> :
-                this.state.mySales.map(empSale =>
+                this.state.mySales.map((empSale, saleIndex) =>
                   <CollapsibleItem key={empSale.ventaId}
                     header={this.getSalesHeader(empSale)}>
-                      <SalesForm {...empSale} inventario={this.state.inventario}></SalesForm>
+                      {empSale.form.isReadMode ? <SalesForm {...empSale} inventario={this.state.inventario}>
+                          <Button onClick={(e) => {e.preventDefault();this.toggleEditMode(saleIndex)}}>Editar</Button>                        
+                      </SalesForm> :
+                      this.state.inventario && <SalesForm {...this.state.updatingSaleForm}
+                        setFormField={(newFieldValue) => this.updateFromState(newFieldValue)}
+                        onSubmitForm={(e) => this.onSaleEdit(e, empSale.userName, empSale.ventaId)}
+                        updateState={(newState) => this.updateUserState(newState)}>
+                          <span className="sale-edit-mode-actions">
+                            <Button type="submit" disabled={this.state.ventaLoading}>
+                            {!this.state.ventaLoading ?
+                              <span>Guardar</span> : <span>Cargando ...</span>}
+                            </Button>
+                            <a className={`delete ${this.state.isLoadingDelete ? 'disabled' : ''}`}
+                              onClick={(e) => this.onDeleteSale(e, empSale.userName, empSale.ventaId)}>
+                              <i className="material-icons small">delete_forever</i>
+                              { !this.state.isLoadingDelete ? <span>ELIMINAR</span> :
+                              <span>ELIMINANDO...</span> }
+                            </a>
+                          </span>                        
+                      </SalesForm>}
                   </CollapsibleItem>) 
             }
           </Collapsible>

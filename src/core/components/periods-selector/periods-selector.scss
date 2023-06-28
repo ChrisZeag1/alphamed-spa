@@ -3,14 +3,20 @@
  justify-content: space-between;
  align-items: center;
  
- .period-select {
-   cursor: pointer;
+ .arrow-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
  }
+ 
+  .period-select {
+    cursor: pointer;
+  }
 
- .dates {
-  display: inherit;
+  .dates {
+    display: inherit;
   
-  .date-time {
+    .date-time {
       margin: 0 10px;
       display: flex;
       flex-direction: column;
@@ -20,8 +26,7 @@
         text-align: center;
       }
 
-   }
+    }
 
- }
-
+  }
 }
