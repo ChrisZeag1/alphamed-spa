@@ -235,6 +235,29 @@ export default class MisVentas extends React.Component {
     }
   }
 
+  async onDeleteSale(e, employeeName, saleId) {
+    e.preventDefault();
+    if (this.state.isLoadingDelete) {
+      return;
+    }
+    this.setState({ isLoadingDelete: true });
+    try {
+      const reqDeleted = await Api.deleteReq(Api.VENTAS_URL + `/${employeeName}/${saleId}`);
+      if (reqDeleted) {
+        const saleIndex = this.state.mySales.findIndex(sale => sale.ventaId === saleId);
+        const mySales = [
+          ...this.state.mySales.slice(0, saleIndex),
+          ...this.state.mySales.slice(saleIndex + 1, this.state.mySales.length),
+        ];
+        this.setState({ mySales });
+        this.displayMessage({ errorMessage: '', successMessage: `Venta con ID:${saleId} Borrada!`, isLoadingDelete: false });
+      }
+    }catch(e) {
+      console.error(e);
+      this.displayMessage({ errorMessage: 'Hubo un problema al borrar la venta', isLoadingDelete: false });
+    }
+  }
+
   getSalesHeader(sale) {
     return <div className="employee-header-sumary">
       <div className="sale-summary-info between">

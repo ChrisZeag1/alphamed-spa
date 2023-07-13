@@ -49,6 +49,7 @@ export class SalesForm extends React.Component {
       ...this.props.availableInventario,
       produInventrio
     ].sort(this.sortArticulo);
+
     this.props.updateState({
       availableInventario: newAvailableInventario,
       articulos: newArticulos,
@@ -121,9 +122,11 @@ export class SalesForm extends React.Component {
     if (articulo.articuloId) {
       const artIndex = this.props.availableInventario
       .findIndex((item) => item.articuloId === articulo.articuloId);
+
       if (_get(this.props.articulos[index], 'articuloId')) {
         newAvailableInventario.push(articuloEnInvetorio);
       }
+
       newAvailableInventario = [
         ...this.props.availableInventario.slice(0, artIndex),
         ...this.props.availableInventario.slice(artIndex + 1, this.props.availableInventario.length),
@@ -141,6 +144,7 @@ export class SalesForm extends React.Component {
     const newSubTotal = newArticulos.reduce((acc, current) =>
       acc + (current.total ? current.total : this.getItemTotal(current) ), 0
     );
+
     let newTotal = newSubTotal;
 
     if (this.props.IVA) {
@@ -158,7 +162,7 @@ export class SalesForm extends React.Component {
   getItemTotal(articulo) {
     const cantidad = _get(articulo, 'cantidad', 0);
     const precio =  _get(articulo, 'precio', 0);
-    const descuento = _get(articulo, 'descuento', 0)
+    const descuento = _get(articulo, 'descuento', 0);
     return  ((cantidad * precio) - (descuento));
   }
 
