@@ -41,8 +41,9 @@ export const AlphaSelect = (props) => {
 
   const availableItems = (items) => {
     if(searchValue) {
-      const reg = new RegExp(searchValue.toLowerCase().replace('.', ' '), 'g');
-      const filtered = items.filter(item => reg.test(item.articulo.toLowerCase().replace('.', ' ')));
+      const filtered = items.filter(item => 
+        item.articulo.toLowerCase().trim().includes(searchValue.toLowerCase().trim())
+      );
       return filtered.length ?
       filtered : [{ articulo: 'sin resultados', articuloId: 'NA' }];
     } else {

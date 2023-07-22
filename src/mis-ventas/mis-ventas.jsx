@@ -139,8 +139,6 @@ export default class MisVentas extends React.Component {
     };
 
     try {
-      console.log('toBeSaved >', toBeSaved);
-      console.log('toBeSaved >', this.state.updatingSaleForm);
       const response = await Api.post(`${Api.VENTAS_URL}/${userName}/${ventaId}`, toBeSaved);
       if (response && response.ventaId) {
         this.refreshPage();
@@ -154,7 +152,6 @@ export default class MisVentas extends React.Component {
 
   displayMessage(message) {
     this.setState(message);
-    console.log('message >', message);
     setTimeout(() => {
       this.setState({ errorMessage: '', successMessage: '' });
     }, 6000);
