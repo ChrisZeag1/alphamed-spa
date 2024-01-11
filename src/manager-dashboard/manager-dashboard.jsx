@@ -57,7 +57,7 @@ export default class ManagerDashboard extends React.Component {
 
   render() {
     return <div id="manager-dashboard">
-      <h1>DASHBORD</h1>
+      <h1>DASHBOARD</h1>
       <div className="content row"> 
         <div className="dashbord-tile col s10 m5">
           <Card
@@ -72,28 +72,9 @@ export default class ManagerDashboard extends React.Component {
               </Button>
             ]}
             horizontal>
-             { this.state.periods.length ? <div>
-               <h5>Corridas</h5>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Inicio</th>
-                      <th>Fin</th>
-                  </tr>
-                </thead>
-                  {
-                    this.state.periods.map((p, i) => <tr>
-                      <td>{moment(p.startDate).format('DD/MM/YY hh:mm a')}</td>
-                      <td>
-                        {moment(p.endDate).format('DD/MM/YY') === moment().format('DD/MM/YY') && !i ? '' :
-                          moment(p.endDate).format('DD/MM/YY hh:mm a') }
-                      </td>
-                    </tr>)
-                  }
-                <tbody>
-                </tbody>
-              </table>
-              </div>: <Spinner/>}            
+             { this.state.periods.length ?
+             <div>Total de corridas: {this.state.periods.length}</div> :
+             <Spinner/>}            
           </Card>          
         </div>
       </div>

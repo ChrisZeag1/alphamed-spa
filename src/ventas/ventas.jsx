@@ -351,11 +351,12 @@ export default class Ventas extends React.Component {
     return <div className="employee-header-sumary">
       <div className="to-left">
         <div className="sumary-el s-w">ID: {sale.ventaId}</div>
+        <div className="sumary-el ll-w">{sale.form.nombreDoctor}</div>
         <div className="sumary-el ll-w">{moment(sale.fechaVenta).format('ll')} {moment(sale.fechaVenta).format('LT')}</div>
         {!sale.form.isReadMode && <div className="sumary-el s-w editing">Editando</div>}
       </div>
       <div className="to-right">
-        <div className="sumary-el s-w">{sale.articulos.length} Pzas</div>
+        <div className="sumary-el s-w">{sale.form.metodoPago}</div>
           <div className="sumary-el s-w">IVA: {sale.IVA ? 'SI': 'NO'}</div>
         <div className="sumary-el ll-w">$ {sale.subTotal.toFixed(2)} MXN</div>
       </div>

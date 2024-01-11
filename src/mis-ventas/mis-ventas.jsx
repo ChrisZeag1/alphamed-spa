@@ -259,11 +259,12 @@ export default class MisVentas extends React.Component {
     return <div className="employee-header-sumary">
       <div className="sale-summary-info between">
         <div className="sumary-el">ID: {sale.ventaId}</div>
+        <div className="sumary-el">{sale.form.nombreDoctor}</div>
         {!sale.form.isReadMode && <div className="sumary-el s-w editing">Editando</div>}
         <div className="sumary-el main">{moment(sale.fechaVenta).format('ll')}</div>
       </div>
       <div className="sale-summary-info end">
-        <div className="sumary-el">{sale.articulos.length} Pzas</div>
+        <div className="sumary-el">{sale.form.metodoPago}</div>
         <div className="sumary-el money">$ {sale.subTotal} MXN</div>
       </div>
     </div>

@@ -15,7 +15,10 @@ export const AlphaSelect = (props) => {
     }
   );
   const modalOptions = {
-    onCloseStart: () => setopenModal(false)
+    onCloseStart: () => {
+      setopenModal(false);
+      setSearchValue('');
+    }
   };
 
   const onInputchange = (e) => {

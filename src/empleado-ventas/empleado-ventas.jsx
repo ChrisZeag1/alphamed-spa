@@ -5,6 +5,7 @@ import './empleado-ventas.scss';
 import * as moment from 'moment';
 import { get as _get } from 'lodash';
 import { sortInvetario } from '../inventario/sort-invetario.model';
+import { NotaVenta } from './nota-venta';
 import * as Api from '../core/api';
 
 export default class EmpleadoVentas extends React.Component {
@@ -140,26 +141,29 @@ export default class EmpleadoVentas extends React.Component {
   }
 
   render() {
-    return <div id="empleado-ventas">
-      <div className="title">
-        <h2>Venta</h2>
-        <h5 className="fecha-venta">{this.state.fechaVenta.format('DD/MM/YYYY')}</h5>
-      </div>
-      {this.state.errorMessage &&
-        <div  id="error-message" className="red accent-4 error-msg">{this.state.errorMessage}
+    return <React.Fragment>
+      <div id="empleado-ventas">
+        <div className="title">
+          <h2>Venta</h2>
+          <h5 className="fecha-venta">{this.state.fechaVenta.format('DD/MM/YYYY')}</h5>
+        </div>
+        {this.state.errorMessage &&
+          <div  id="error-message" className="red accent-4 error-msg">{this.state.errorMessage}
+          </div>}
+        {this.state.successMessage &&
+        <div  id="success-message" className="teal accent-4 success-msg">{this.state.successMessage}
         </div>}
-      {this.state.successMessage &&
-      <div  id="success-message" className="teal accent-4 success-msg">{this.state.successMessage}
-      </div>}
-        <SalesForm {...this.state}
-          setFormField={this.setFormField}
-          onSubmitForm={this.onSubmitForm}
-          updateState={this.updateState}>
-          <Button type="submit" disabled={this.state.ventaLoading}>
-            {!this.state.ventaLoading ?
-              <span>Vender</span> : <span>Cargando ...</span>}
-          </Button>
-        </SalesForm>
-    </div>;
+          <SalesForm {...this.state}
+            setFormField={this.setFormField}
+            onSubmitForm={this.onSubmitForm}
+            updateState={this.updateState}>
+            <Button type="submit" disabled={this.state.ventaLoading}>
+              {!this.state.ventaLoading ?
+                <span>Vender</span> : <span>Cargando ...</span>}
+            </Button>
+          </SalesForm>
+      </div>
+      <NotaVenta></NotaVenta>
+    </React.Fragment>;
   }
 }

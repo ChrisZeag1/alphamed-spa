@@ -1,0 +1,44 @@
+#nota-venta-print {
+  margin: 20px;
+  display: none;
+
+  @media print {
+    display: block;
+  }
+
+  h5 {
+    text-align: center;
+  }
+
+  .print-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .img-circle {
+    border: 1px solid white;
+    border-radius: 50%;
+    background: white;
+    display: flex;
+    padding: 22px 15px;
+    width: 150px;
+    height: 150px;
+
+    img {
+      height: 100px;
+      width: 100%;
+    }
+
+  }
+
+
+  td[colspan="2"] {
+    text-align: center;
+  }
+
+  .print-total h6 {
+    font-weight: bold;
+  }
+
+}

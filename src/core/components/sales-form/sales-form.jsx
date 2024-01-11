@@ -142,8 +142,8 @@ export class SalesForm extends React.Component {
     ];
 
     const newSubTotal = newArticulos.reduce((acc, current) =>
-      acc + (current.total ? current.total : this.getItemTotal(current) ), 0
-    );
+      acc + (typeof current.total === 'number' ? current.total : this.getItemTotal(current))
+    , 0);
 
     let newTotal = newSubTotal;
 

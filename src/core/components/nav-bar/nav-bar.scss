@@ -1,4 +1,9 @@
 #root nav {
+
+  @media print {
+    display: none;
+  }
+
   min-height: 100vh;
   width: auto;
   margin-right: 30px;

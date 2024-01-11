@@ -117,6 +117,7 @@ export default class Inventario extends React.Component {
     if(this.state.dynamicFields.includes(df)) {
       newItem[`${df}_HISTO`] = newValue;
     }
+    debugger;
 
     const itemIndex = this.state.inventario.findIndex(value =>value.articuloId === item.articuloId);
     const newInventario = [
@@ -153,19 +154,6 @@ export default class Inventario extends React.Component {
       }
     }catch(e) {
       this.setState({ errorMessage: e.message, isLoading: false });
-      console.error(e);
-    }
-  }
-
-  async deleteItemAndUpdate(item) {
-    this.setState({ isLoading: true });
-    try {
-      const deleted = await Api.deleteReq(Api.INVENTARIO_URL + `/${item.articuloId}`);
-      if (deleted) {
-        this.getInventario();
-      }
-    } catch(e) {
-      this.setState({ errorMessage: e.message, isLoading: false })
       console.error(e);
     }
   }
@@ -228,9 +216,9 @@ export default class Inventario extends React.Component {
           )}
 
           {this.state.isEditMode && <td><Button
-              className="red lighten-2"
-              onClick={() => this.deleteItemAndUpdate(item)}
-              icon={<i className="small material-icons">delete</i>}>
+              className="blue lighten-2"
+              onClick={() => this.handleChange(item[this.selectedUser.userName + '_HISTO'], item, this.selectedUser.userName)}
+              icon={<i className="small material-icons">refresh</i>}>
           </Button></td>}
         </tr>)}
       </tbody>
