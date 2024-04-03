@@ -1,4 +1,5 @@
 import React from 'react';
+import { jsPDF } from 'jspdf';
 import { SalesForm } from '../core/components';
 import { Button } from 'react-materialize';
 import './empleado-ventas.scss';
@@ -7,6 +8,8 @@ import { get as _get } from 'lodash';
 import { sortInvetario } from '../inventario/sort-invetario.model';
 import { NotaVenta } from './nota-venta';
 import * as Api from '../core/api';
+
+const docPDF = new jsPDF();
 
 export default class EmpleadoVentas extends React.Component {
   form = {
@@ -34,7 +37,8 @@ export default class EmpleadoVentas extends React.Component {
       articulos: [],
       subTotal: 0,
       total: 0,
-      IVA: false
+      IVA: false,
+      saved: null
     };
 
     this.updateState = this.updateState.bind(this);
@@ -48,6 +52,20 @@ export default class EmpleadoVentas extends React.Component {
       this.userName = _get(JSON.parse(localStorage.getItem('am-user')), 'userName');
       await this.getInvetorio();
     }, 1000);
+  }
+
+  print() {
+    const printNode = document.getElementById('nota-venta-print');
+    printNode.style.display = 'block';
+    const fileName = moment(this.state.saved.fechaVenta).format('YYYY.MM.DD') + '-ID:' + this.state.saved.ventaId;
+    docPDF.html(printNode, {
+      callback: function(docPDF) {
+          docPDF.save(fileName + '.pdf');
+          printNode.style.display = 'none';
+      },
+      width: 200,
+      windowWidth: 1000
+    });
   }
 
   updateState(newStates) {
@@ -96,7 +114,6 @@ export default class EmpleadoVentas extends React.Component {
       IVA: this.state.IVA
     };
     this.setState({ ventaLoading: true });
-
     try {
       const res = await Api.post(`${Api.VENTAS_URL}/${this.userName}`, toBeSaved);
       if (!res) {
@@ -107,16 +124,20 @@ export default class EmpleadoVentas extends React.Component {
         });
         window.scroll({ top: 0,  behavior: 'smooth' });
       } else {
+
         this.setState({
           errorMessage: '',
           successMessage: 'Venta realizada! 🎉',
           ventaLoading: false
         });
+        await this.setState({ saved: { ...toBeSaved, ventaId: res.ventaId } });
+        this.print();
         window.scroll({ top: 0,  behavior: 'smooth' });
         this.getInvetorio();
         this.clearForm();
         setTimeout(() => {
           this.setState({ successMessage: '' });
+          this.setState({ saved: null });
         }, 4000);
       }
     } catch(e) {
@@ -163,7 +184,7 @@ export default class EmpleadoVentas extends React.Component {
             </Button>
           </SalesForm>
       </div>
-      <NotaVenta></NotaVenta>
+      {this.state.saved && <NotaVenta venta={this.state.saved}></NotaVenta>}
     </React.Fragment>;
   }
 }

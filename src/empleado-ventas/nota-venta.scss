@@ -2,6 +2,17 @@
   margin: 20px;
   display: none;
 
+  .margin-top-none {
+    margin-top: 0;
+  }
+
+  .margin-bottom-none {
+    margin-top: 0;
+  }
+  .text-right {
+    text-align: right;
+  }
+
   @media print {
     display: block;
   }
@@ -39,6 +50,12 @@
 
   .print-total h6 {
     font-weight: bold;
+  }
+  .info-de-cliente h5 {
+    margin-top: 55px;
+  }
+  .info-de-cliente p {
+    font-size: 20px;
   }
 
 }

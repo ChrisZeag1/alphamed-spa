@@ -182,7 +182,7 @@ export class SalesForm extends React.Component {
           disabled={this.props.form.isReadMode}
           items={this.props.inventario}
           value={articulo.articuloId}
-          onChange={(item) => this.setNewArticulo({ articuloId: item.articuloId }, i)}
+          onChange={(item) => this.setNewArticulo({ articuloId: item.articuloId, articulo: item.articulo }, i)}
           label={'Producto'}>
         </AlphaSelect> : 
         <div className="producto-container">
