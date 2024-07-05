@@ -57,7 +57,7 @@ export default class EmpleadoVentas extends React.Component {
   print() {
     const printNode = document.getElementById('nota-venta-print');
     printNode.style.display = 'block';
-    const fileName = moment(this.state.saved.fechaVenta.split(' ')[0]).format('YYYY.MM.DD') + '-ID:' + this.state.saved.ventaId;
+    const fileName = moment(this.state.saved.fechaVenta).format('YYYY.MM.DD') + '-ID:' + this.state.saved.ventaId;
     docPDF.html(printNode, {
       callback: function(docPDF) {
           docPDF.save(fileName + '.pdf');
@@ -130,7 +130,11 @@ export default class EmpleadoVentas extends React.Component {
           successMessage: 'Venta realizada! 🎉',
           ventaLoading: false
         });
-        await this.setState({ saved: { ...toBeSaved, ventaId: res.ventaId } });
+        await this.setState({ saved: {
+          ...toBeSaved,
+          ventaId: res.ventaId,
+          fechaVenta: toBeSaved.fechaVenta.split(' ')[0]
+        } });
         this.print();
         window.scroll({ top: 0,  behavior: 'smooth' });
         this.getInvetorio();
