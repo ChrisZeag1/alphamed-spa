@@ -35,7 +35,7 @@ return <div id="nota-venta-print">
       <thead>
         <tr>
           <th>Cantidad</th>
-          <th>Descripcion</th>
+          <th>Descripción</th>
           <th>Descuento</th>
           <th>Total</th>
         </tr>
@@ -51,22 +51,22 @@ return <div id="nota-venta-print">
       <tfoot>
         <tr>
           <td colspan="2"></td>
-          <td><h6>Sub Total</h6></td>
+          <td><h6><b>Sub Total</b></h6></td>
           <td className="print-total">${(venta.subTotal || 0).toFixed(2)}</td>
         </tr> 
         <tr>
           <td colspan="2"></td>
-          <td><h6>IVA</h6></td>
+          <td><h6><b>IVA/</b></h6></td>
           <td className="print-total">${((venta.total - venta.subTotal) || 0).toFixed(2)}</td>
         </tr>
         <tr>
           <td colspan="2"></td>
-          <td><h6>Metodo Pago</h6></td>
+          <td><h6><b>Método Pago</b></h6></td>
           <td className="print-total">{venta.metodoPago}</td>
         </tr>
         <tr style={{borderBottom: 'none' }}>
           <td colspan="2"> <h5><i>¡Gracias por su compra!</i></h5></td>
-          <td><h6>Total</h6></td>
+          <td><h6><b>Total</b></h6></td>
           <td className="print-total"> <h6>{(venta.total || 0).toFixed(2)}</h6></td>
         </tr>
       </tfoot>
