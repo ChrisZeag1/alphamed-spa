@@ -73,11 +73,11 @@ return <div id="nota-venta-print">
     </table>
   </div>
   {
-    (venta.nombreDoctor || venta.rfc || venta.facturaEmail) && <div className="info-de-cliente">
+    (!!venta.nombreDoctor || !!venta.rfc || !!venta.facturaEmail) && <div className="info-de-cliente">
       <h4>Info. de Cliente</h4>
-      {venta.nombreDoctor && <p><b>Nombre:</b> {venta.nombreDoctor}</p> }
-      {venta.rfc && <p><b>RFC:</b> {venta.rfc || ''}</p>}
-      {venta.facturaEmail && <p><b>Correo Electrónico:</b> {venta.facturaEmail} </p>}
+      {!!venta.nombreDoctor && <p><b>Nombre:</b> {venta.nombreDoctor}</p> }
+      {!!venta.rfc && <p><b>RFC:</b> {venta.rfc || ''}</p>}
+      {!!venta.facturaEmail && <p><b>Correo Electrónico:</b> {venta.facturaEmail} </p>}
     </div>
   }
   </div>  
