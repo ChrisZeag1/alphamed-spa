@@ -9,10 +9,9 @@ export const NotaVenta = (props) => {
   
 return <div id="nota-venta-print">
   <div className="print-row">
-    <h1 className="margin-top-none">Nota de venta</h1>
+    <h1>Nota de venta</h1>
     <div>
-      <h4 className="margin-top-none">{moment(venta.fechaVenta).format('LL')}</h4>
-        <h5 className="text-right">ID: {venta.ventaId}</h5>
+      <h3 className="margin-top-none margin-bottom-none">{moment(venta.fechaVenta).format('LL')}</h3>
     </div>
   </div>
   <div className="print-row">
@@ -20,13 +19,14 @@ return <div id="nota-venta-print">
       <div className="img-circle">
         <img src="./alphamed-logo.png" alt="alfamed logo"/>
       </div>
-      <a href="www.alfamedonline.com">www.alfamedonline.com</a>
-      <div><a href="mailto:contacto@alfa-med.com.mx">contacto@alfa-med.com.mx</a></div>
+      <a className="contacto-links" href="www.alfamedonline.com">www.alfamedonline.com</a>
+      <p className="contacto-links">contacto@alfa-med.com.mx</p>
     </div>
 
     <div className="print-right text-right">
-      <p className="margin-top-none">Tel: 33 18 14 67 44</p>
-      <p className="margin-top-none">Whats: +52 33 15 84 06 98</p>
+      <h5 className="text-right"><b>ID:</b> {venta.ventaId}</h5>
+      <p className="margin-top-none margin-bottom-none contacto-links"><b>Tel:</b> 33 18 14 67 44</p>
+      <p className="margin-top-none margin-bottom-none contacto-links"><b>Whats:</b> +52 33 15 84 06 98</p>
       <h6>{}</h6>
     </div>
   </div>
@@ -64,19 +64,21 @@ return <div id="nota-venta-print">
           <td><h6>Metodo Pago</h6></td>
           <td className="print-total">{venta.metodoPago}</td>
         </tr>
-        <tr>
-          <td colspan="2"> <h5>Gracias por su compra!</h5></td>
+        <tr style={{borderBottom: 'none' }}>
+          <td colspan="2"> <h5><i>¡Gracias por su compra!</i></h5></td>
           <td><h6>Total</h6></td>
           <td className="print-total"> <h6>{(venta.total || 0).toFixed(2)}</h6></td>
         </tr>
       </tfoot>
     </table>
   </div>
-  <div className="info-de-cliente">
-    <h5>Info. de Cliente</h5>
-    <p>Nombre: {venta.nombreDoctor}</p> 
-    <p> RFC: {venta.rfc || ''}</p>
-    <p>Correo Electrónico: {venta.facturaEmail} </p>
-  </div>
-</div>  
+  {
+    (venta.nombreDoctor || venta.rfc || venta.facturaEmail) && <div className="info-de-cliente">
+      <h4>Info. de Cliente</h4>
+      {venta.nombreDoctor && <p><b>Nombre:</b> {venta.nombreDoctor}</p> }
+      {venta.rfc && <p><b>RFC:</b> {venta.rfc || ''}</p>}
+      {venta.facturaEmail && <p><b>Correo Electrónico:</b> {venta.facturaEmail} </p>}
+    </div>
+  }
+  </div>  
 }

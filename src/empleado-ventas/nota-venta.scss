@@ -7,24 +7,26 @@
   }
 
   .margin-bottom-none {
-    margin-top: 0;
+    margin-bottom: 0;
   }
   .text-right {
     text-align: right;
+  }
+
+  .table {
+    margin-top: 25px;
+    border: 1px solid darkgrey;
+    border-radius: 15px;
   }
 
   @media print {
     display: block;
   }
 
-  h5 {
-    text-align: center;
-  }
-
   .print-row {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: baseline;
   }
 
   .img-circle {
@@ -51,9 +53,28 @@
   .print-total h6 {
     font-weight: bold;
   }
-  .info-de-cliente h5 {
-    margin-top: 55px;
+
+  .contacto-links {
+    font-size: 20px;
+    margin: 0;
   }
+
+  .info-de-cliente {
+    border: 2px dashed darkgrey;
+    border-radius: 15px;
+    margin: 10px;
+    padding: 10px;
+    padding-left: 20px;
+    width: 90%;
+    margin-top: 50px;
+    margin-left: 5%;
+
+    h4 {
+      margin-top: 0;
+      margin-left: 20px;
+    }
+  }
+
   .info-de-cliente p {
     font-size: 20px;
   }

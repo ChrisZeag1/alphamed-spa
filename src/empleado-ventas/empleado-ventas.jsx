@@ -61,7 +61,7 @@ export default class EmpleadoVentas extends React.Component {
     docPDF.html(printNode, {
       callback: function(docPDF) {
           docPDF.save(fileName + '.pdf');
-          printNode.style.display = 'none';
+          // printNode.style.display = 'none';
       },
       width: 200,
       windowWidth: 1000
@@ -141,7 +141,7 @@ export default class EmpleadoVentas extends React.Component {
         this.clearForm();
         setTimeout(() => {
           this.setState({ successMessage: '' });
-          this.setState({ saved: null });
+          // this.setState({ saved: null });
         }, 4000);
       }
     } catch(e) {
