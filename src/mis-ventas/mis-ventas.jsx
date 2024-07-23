@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom'
 import { Collapsible,  CollapsibleItem, Button } from 'react-materialize';
 import  * as moment from  'moment';
 import * as Api from '../core/api';
@@ -6,6 +7,10 @@ import { Spinner, PeriodsSector, SalesForm, PeriodsModel } from '../core/compone
 import { get as _get } from 'lodash';
 import { totales } from '../ventas/totales';
 import './mis-ventas.scss';
+import { NotaVenta } from '../empleado-ventas/nota-venta';
+import { jsPDF } from 'jspdf';
+
+const docPDF = new jsPDF();
 
 export default class MisVentas extends React.Component {
   userName = '';
@@ -270,6 +275,21 @@ export default class MisVentas extends React.Component {
     </div>
   }
 
+  rePrintSalesNote(venta) {
+    ReactDOM.render(<NotaVenta venta={venta} caller='fromSalesView'> </NotaVenta>, document.getElementById('nota-venta-wrapper-' + venta.ventaId));
+    const printNode = document.getElementById('nota-venta-print-' + venta.ventaId);
+    printNode.style.display = 'block';
+    const fileName = moment(venta.fechaVenta).format('YYYY.MM.DD') + '-ID:' + venta.ventaId;
+    docPDF.html(printNode, {
+      callback: function(docPDF) {
+          docPDF.save(fileName + '.pdf');
+          printNode.style.display = 'none';
+      },
+      width: 200,
+      windowWidth: 1000
+    });
+  }
+
   message() {
     return <React.Fragment>
       {
@@ -308,7 +328,12 @@ export default class MisVentas extends React.Component {
                   <CollapsibleItem key={empSale.ventaId}
                     header={this.getSalesHeader(empSale)}>
                       {empSale.form.isReadMode ? <SalesForm {...empSale} inventario={this.state.inventario}>
-                          <Button onClick={(e) => {e.preventDefault();this.toggleEditMode(saleIndex)}}>Editar</Button>                        
+                          <Button onClick={(e) => {e.preventDefault();this.toggleEditMode(saleIndex)}}>Editar</Button>
+                          <div style={{display: 'none'}} id={'nota-venta-wrapper-' + empSale.ventaId}>
+                          </div>
+                          <br></br>
+                          <br></br>
+                          <Button onClick={(e) => {e.preventDefault(); this.rePrintSalesNote(empSale); }}>Generar nota</Button>               
                       </SalesForm> :
                       this.state.inventario && <SalesForm {...this.state.updatingSaleForm}
                         setFormField={(newFieldValue) => this.updateFromState(newFieldValue)}

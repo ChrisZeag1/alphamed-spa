@@ -4,10 +4,11 @@ import 'moment/locale/es';
 
 export const NotaVenta = (props) => {
   const venta = props.venta || {};
+  const caller = props.caller || 'default';
   moment.locale('es');
 
   
-return <div id="nota-venta-print">
+return <div id={ caller == 'default' ? 'nota-venta-print' : 'nota-venta-print-' + venta.ventaId} className='nota-venta-print'>
   <div className="print-row">
     <h1>Nota de venta</h1>
     <div>
@@ -62,7 +63,7 @@ return <div id="nota-venta-print">
         <tr>
           <td colspan="2"></td>
           <td><h6><b>Método Pago</b></h6></td>
-          <td className="print-total">{venta.metodoPago}</td>
+          <td className="print-total">{ caller == 'default' ? venta.metodoPago : venta.form.metodoPago}</td>
         </tr>
         <tr style={{borderBottom: 'none' }}>
           <td colspan="2"> <h5><i>¡Gracias por su compra!</i></h5></td>
@@ -72,12 +73,18 @@ return <div id="nota-venta-print">
       </tfoot>
     </table>
   </div>
-  {
+  { caller == 'default' ?
     (!!venta.nombreDoctor || !!venta.rfc || !!venta.facturaEmail) && <div className="info-de-cliente">
       <h4>Info. de Cliente</h4>
       {!!venta.nombreDoctor && <p><b>Nombre:</b> {venta.nombreDoctor}</p> }
       {!!venta.rfc && <p><b>RFC:</b> {venta.rfc || ''}</p>}
       {!!venta.facturaEmail && <p><b>Correo Electrónico:</b> {venta.facturaEmail} </p>}
+    </div> :
+    (!!venta.form.nombreDoctor || !!venta.form.rfc || !!venta.form.facturaEmail) && <div className="info-de-cliente">
+      <h4>Info. de Cliente</h4>
+      {!!venta.form.nombreDoctor && <p><b>Nombre:</b> {venta.form.nombreDoctor}</p> }
+      {!!venta.form.rfc && <p><b>RFC:</b> {venta.form.rfc || ''}</p>}
+      {!!venta.form.facturaEmail && <p><b>Correo Electrónico:</b> {venta.form.facturaEmail} </p>}
     </div>
   }
   </div>  
