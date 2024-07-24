@@ -17,6 +17,11 @@
     margin-top: 25px;
     border: 1px solid darkgrey;
     border-radius: 15px;
+    table {
+      td,th {
+        text-align: center;
+      }
+    }
   }
 
   @media print {
