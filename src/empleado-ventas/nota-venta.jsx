@@ -2,83 +2,83 @@ import './nota-venta.scss';
 import * as moment from 'moment';
 import 'moment/locale/es';
 
+const formatCurrency = (value) => {
+  return value.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
+
 export const NotaVenta = (props) => {
   const venta = props.venta || {};
   moment.locale('es');
 
-  
-return <div id="nota-venta-print">
-  <div className="print-row">
-    <h1>Nota de venta</h1>
-    <div>
-      <h3 className="margin-top-none margin-bottom-none">{moment(venta.fechaVenta).format('LL')}</h3>
-    </div>
-  </div>
-  <div className="print-row">
-    <div className="print-left">
-      <div className="img-circle">
-        <img src="./alphamed-logo.png" alt="alfamed logo"/>
+  return (
+    <div id="nota-venta-print">
+      <div className="print-row">
+        <h1>Nota de venta - ID: {venta.ventaId}</h1>
+        <div>
+          <h3 className="margin-top-none margin-bottom-none">
+            {moment(venta.fechaVenta).format('LL')}
+          </h3>
+        </div>
       </div>
-      <a className="contacto-links" href="www.alfamedonline.com">www.alfamedonline.com</a>
-      <p className="contacto-links">contacto@alfa-med.com.mx</p>
+      <div className="print-row">
+        <div className="print-left">
+          <div className="img-circle">
+            <img src="./alphamed-logo.png" alt="alfamed logo" />
+          </div>
+          <a className="contacto-links" href="http://www.alfamedonline.com">www.alfamedonline.com</a>
+          <p className="contacto-links">contacto@alfa-med.com.mx</p>
+        </div>
+        <div className="print-right text-right">
+          <p className="margin-top-none margin-bottom-none contacto-links"><b>Tel:</b> 33 18 14 67 44</p>
+          <p className="margin-top-none margin-bottom-none contacto-links"><b>Whatsapp:</b> 33 15 84 06 98</p>
+        </div>
+      </div>
+      <div className="header-info">
+        <p><b>Cliente:</b> {venta.nombreDoctor}</p>
+        <p><b>Asesor de Ventas:</b> {venta.nombreUsuario}</p>
+      </div>
+      <div className="table">
+        <table>
+          <thead>
+            <tr>
+              <th>Cantidad</th>
+              <th>Descripción</th>
+              <th>Precio Unitario</th>
+              <th>Descuento</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {venta.articulos.map((a, index) => (
+              <tr key={index}>
+                <td>{a.cantidad}</td>
+                <td>{a.articulo}</td>
+                <td>${formatCurrency(a.total / a.cantidad)}</td>
+                <td>${formatCurrency(a.descuento || 0)}</td>
+                <td>${formatCurrency(a.total || 0)}</td>
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colSpan="2"></td>
+              <td><h6><b>Método Pago:</b> {venta.metodoPago}</h6></td>
+              <td><h6><b>Sub Total</b></h6></td>
+              <td className="print-total">${formatCurrency(venta.subTotal || 0)}</td>
+            </tr>
+            <tr>
+              <td colSpan="3"></td>
+              <td><h6><b>IVA</b></h6></td>
+              <td className="print-total">${formatCurrency(venta.total - venta.subTotal || 0)}</td>
+            </tr>
+            <tr style={{ borderBottom: 'none' }}>
+              <td colSpan="3"></td>
+              <td><h6><b>Total</b></h6></td>
+              <td className="print-total"><h6>${formatCurrency(venta.total || 0)}</h6></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
     </div>
-
-    <div className="print-right text-right">
-      <h5 className="text-right"><b>ID:</b> {venta.ventaId}</h5>
-      <p className="margin-top-none margin-bottom-none contacto-links"><b>Tel:</b> 33 18 14 67 44</p>
-      <p className="margin-top-none margin-bottom-none contacto-links"><b>Whats:</b> +52 33 15 84 06 98</p>
-      <h6>{}</h6>
-    </div>
-  </div>
-  <div className="table">
-    <table>
-      <thead>
-        <tr>
-          <th>Cantidad</th>
-          <th>Descripción</th>
-          <th>Descuento</th>
-          <th>Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        {venta.articulos.map(a => (<tr>
-          <td>{a.cantidad}</td>
-          <td>{a.articulo}</td>
-          <td>${(a.descuento || 0).toFixed(2)}</td> 
-          <td>${(a.total || 0).toFixed(2)}</td>
-        </tr>))}
-      </tbody>
-      <tfoot>
-        <tr>
-          <td colspan="2"></td>
-          <td><h6><b>Sub Total</b></h6></td>
-          <td className="print-total">${(venta.subTotal || 0).toFixed(2)}</td>
-        </tr> 
-        <tr>
-          <td colspan="2"></td>
-          <td><h6><b>IVA/</b></h6></td>
-          <td className="print-total">${((venta.total - venta.subTotal) || 0).toFixed(2)}</td>
-        </tr>
-        <tr>
-          <td colspan="2"></td>
-          <td><h6><b>Método Pago</b></h6></td>
-          <td className="print-total">{venta.metodoPago}</td>
-        </tr>
-        <tr style={{borderBottom: 'none' }}>
-          <td colspan="2"> <h5><i>¡Gracias por su compra!</i></h5></td>
-          <td><h6><b>Total</b></h6></td>
-          <td className="print-total"> <h6>{(venta.total || 0).toFixed(2)}</h6></td>
-        </tr>
-      </tfoot>
-    </table>
-  </div>
-  {
-    (!!venta.nombreDoctor || !!venta.rfc || !!venta.facturaEmail) && <div className="info-de-cliente">
-      <h4>Info. de Cliente</h4>
-      {!!venta.nombreDoctor && <p><b>Nombre:</b> {venta.nombreDoctor}</p> }
-      {!!venta.rfc && <p><b>RFC:</b> {venta.rfc || ''}</p>}
-      {!!venta.facturaEmail && <p><b>Correo Electrónico:</b> {venta.facturaEmail} </p>}
-    </div>
-  }
-  </div>  
+  );
 }
