@@ -41,11 +41,11 @@ export const NotaVenta = (props) => {
         <table>
           <thead>
             <tr>
-              <th>Cantidad</th>
-              <th>Descripción</th>
-              <th>Precio Unitario</th>
-              <th>Descuento</th>
-              <th>Total</th>
+              <th width="20%">Cantidad</th>
+              <th width="20%">Descripción</th>
+              <th width="20%"> Precio Unitario</th>
+              <th width="20%">Descuento</th>
+              <th width="20%">Total</th>
             </tr>
           </thead>
           <tbody>
