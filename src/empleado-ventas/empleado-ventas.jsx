@@ -50,6 +50,7 @@ export default class EmpleadoVentas extends React.Component {
     // TODO: remove timeout, issue hapening after login only;
     setTimeout(async() => {
       this.userName = _get(JSON.parse(localStorage.getItem('am-user')), 'userName');
+      this.nombreUsuario = _get(JSON.parse(localStorage.getItem('am-user')), 'nombre');
       await this.getInvetorio();
     }, 1000);
   }
@@ -133,7 +134,8 @@ export default class EmpleadoVentas extends React.Component {
         await this.setState({ saved: {
           ...toBeSaved,
           ventaId: res.ventaId,
-          fechaVenta: toBeSaved.fechaVenta.split(' ')[0]
+          fechaVenta: toBeSaved.fechaVenta.split(' ')[0],
+          nombreUsuario: this.nombreUsuario
         } });
         this.print();
         window.scroll({ top: 0,  behavior: 'smooth' });
