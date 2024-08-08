@@ -12,7 +12,12 @@
   background-color: #039be5;
 
   .selected {
-    background-color: rgba(0,0,0,0.1);
+    i {
+      background-color: rgba(0,0,0,0.1);
+      box-shadow: inset -5px -5px 20px 1px #a7a7a7;
+      -moz-box-shadow: inset -5px -5px 20px 1px #a7a7a7;
+      -webkit-box-shadow: inset -5px -5px 20px 1px #a7a7a7;
+    }
   }
 
   #logo-container {

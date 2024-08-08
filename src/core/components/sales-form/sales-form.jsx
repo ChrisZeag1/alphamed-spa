@@ -302,7 +302,7 @@ export class SalesForm extends React.Component {
             <label className="active">Sub total</label>
           </div>
           <div className="input-field col s12">
-            <input value={`$ ${this.props.total.toFixed(2)}`} type="text" disabled/>
+            <input value={`$ ${this.props.total ? this.props.total.toFixed(2) : 0}`} type="text" disabled/>
             <label className="active">Total</label>
           </div>
         </div>
