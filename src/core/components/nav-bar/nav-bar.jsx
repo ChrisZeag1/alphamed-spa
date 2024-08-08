@@ -15,7 +15,7 @@ export const NavBar = (props) => {
       </li>
       {
         routes.map(r => <li key={r.path}>
-          <NavLink to={r.path} activeClassName="selected">
+          <NavLink to={r.path} className={({isActive}) => isActive ? 'selected' : ''}>
           <i title={r.name} className="large material-icons">{r.icon}</i>
           </NavLink>
         </li>)

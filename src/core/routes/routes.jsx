@@ -1,4 +1,4 @@
-import { Switch, Route, Redirect } from 'react-router-dom';
+import { Routes as Switch, Route, Navigate } from 'react-router-dom';
 import React from 'react';
 import Login from '../../login/login';
 import { Button } from 'react-materialize';
@@ -8,15 +8,15 @@ const NavRoutes = (props) => {
   const routes = props.user.rol === 'admin' ? MANAGER_ROUTES : EMPLOYEE_ROUTES;
 
   return <Switch>
-    {routes.map(r => <Route key={r.path} path={r.path}>
+    {routes.map(r => <Route key={r.path} path={r.path} element={
       <div className="page">
         {r.render}
         {r.path === '/dasboard' &&
             <Button onClick={props.handleLogout}>Cerrar sesión</Button>}
-      </div>
+      </div>}>
     </Route>)}
     <Route path="*"
-      render={() => (<Redirect to={props.user.rol === 'admin' ? '/empleados' : '/venta'}/>)}>
+      element={<Navigate to={props.user.rol === 'admin' ? '/empleados' : '/venta'} replace={true}/>}>
     </Route>
   </Switch>
 };
@@ -24,15 +24,15 @@ const NavRoutes = (props) => {
 
 export const Routes = (props) => <React.Fragment>
   {!props.user && <Switch>
-    <Route path="/login">
+    <Route path="/login" element={
       <div className="page">
         <Login {...props}
           onSubmit={props.onSubmit}
           onFormChange={props.onFormChange}/>
-      </div>
+      </div>}>
     </Route>
     <Route path="*"
-      render={() => <Redirect to="/login"/>}>
+      element={<Navigate to="/login" replace={true} />}>
     </Route>
   </Switch>}
 
