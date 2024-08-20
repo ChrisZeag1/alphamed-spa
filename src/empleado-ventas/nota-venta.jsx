@@ -41,11 +41,11 @@ export const NotaVenta = (props) => {
         <table>
           <thead>
             <tr>
-              <th width="20%">Cantidad</th>
-              <th width="20%">Descripción</th>
-              <th width="20%"> Precio Unitario</th>
-              <th width="20%">Descuento</th>
-              <th width="20%">Total</th>
+              <th width="15%">Cantidad</th>
+              <th width="40%">Descripción</th>
+              <th width="15%">Unitario</th>
+              <th width="15%">Descuento</th>
+              <th width="15%">Importe</th>
             </tr>
           </thead>
           <tbody>
@@ -61,20 +61,24 @@ export const NotaVenta = (props) => {
           </tbody>
           <tfoot>
             <tr>
-              <td colSpan="2"></td>
-              <td><h6><b>Método Pago:</b> {venta.metodoPago}</h6></td>
+              <td colSpan="3"></td>
               <td><h6><b>Sub Total</b></h6></td>
               <td className="print-total">${formatCurrency(venta.subTotal || 0)}</td>
             </tr>
             <tr>
               <td colSpan="3"></td>
-              <td><h6><b>IVA</b></h6></td>
+              <td><h6><b>IVA 16%</b></h6></td>
               <td className="print-total">${formatCurrency(venta.total - venta.subTotal || 0)}</td>
             </tr>
-            <tr style={{ borderBottom: 'none' }}>
+            <tr>
               <td colSpan="3"></td>
               <td><h6><b>Total</b></h6></td>
               <td className="print-total"><h6>${formatCurrency(venta.total || 0)}</h6></td>
+            </tr>
+            <tr style={{ borderBottom: 'none' }}>
+              <td colSpan="3"></td>
+              <td><h6><b>Método Pago:</b></h6></td>
+              <td className="print-total"><h6>{venta.metodoPago}</h6></td>
             </tr>
           </tfoot>
         </table>
