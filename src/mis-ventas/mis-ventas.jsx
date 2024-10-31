@@ -308,7 +308,7 @@ export default class MisVentas extends React.Component {
                   <CollapsibleItem key={empSale.ventaId}
                     header={this.getSalesHeader(empSale)}>
                       {empSale.form.isReadMode ? <SalesForm {...empSale} inventario={this.state.inventario}>
-                          <Button onClick={(e) => {e.preventDefault();this.toggleEditMode(saleIndex)}}>Editar</Button>                        
+                          <Button disabled="true" onClick={(e) => {e.preventDefault();this.toggleEditMode(saleIndex)}}>Editar</Button>                        
                       </SalesForm> :
                       this.state.inventario && <SalesForm {...this.state.updatingSaleForm}
                         setFormField={(newFieldValue) => this.updateFromState(newFieldValue)}
